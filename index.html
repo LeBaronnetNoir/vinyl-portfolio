@@ -640,15 +640,13 @@ async function fetchDetail(id){try{return await apiFetch(`${DISCOGS}/releases/${
 function buildRealHistory(releaseId, currentPrice) {
   const pts = historyMap[releaseId] || [];
   if (pts.length >= 2) return { data: pts.map(p=>p.price), labels: pts.map(p=>new Date(p.recorded_at).toLocaleDateString('fr',{day:'2-digit',month:'short'})), isReal: true };
-  // Fallback: estimated
-  const est = [];
-  let p = currentPrice*(0.65+Math.random()*.28);
-  for (let i=12;i>0;i--){est.push(Math.max(0.5,+(p.toFixed(2))));p=p*(0.955+Math.random()*.095);}
-  est.push(+currentPrice.toFixed(2));
+  // Pas assez de données réelles — on n'invente pas de prix
   const now = new Date();
   const lbl = [];
   for (let i=12;i>=0;i--){const d=new Date(now);d.setMonth(d.getMonth()-i);lbl.push(d.toLocaleString('fr',{month:'short',year:'2-digit'}));}
-  return { data: est, labels: lbl, isReal: false };
+  if(!currentPrice || currentPrice <= 0) return { data: [], labels: lbl, isReal: false };
+  // Un seul point réel = le prix actuel (pas d'historique inventé)
+  return { data: Array(13).fill(null).map((_,i)=>i===12?+currentPrice.toFixed(2):null), labels: lbl, isReal: false };
 }
 
 function startLiveChart(canvasId, history, labels, color, price, isReal, height=148) {
@@ -941,7 +939,8 @@ async function showDetail(idx){
   $('back-btn').style.display='';
   $('detail-view').innerHTML=`<div class="loading"><div class="loading-title">${r.basic_information.title}</div>Chargement<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></div>`;
 
-  const [detail,priceSugg,market]=await Promise.all([fetchDetail(r.id),fetchPriceSugg(r.id),fetchMarketStats(r.id)]);
+  const [detail,market]=await Promise.all([fetchDetail(r.id),fetchMarketStats(r.id)]);
+  const priceSugg=null; // price_suggestions supprimé — prix vendeur biaisés
   
   // Get condition from collection data
   const mediaCondition = r.basic_information?.condition || r.condition || null;
@@ -979,11 +978,18 @@ async function showDetail(idx){
   const medianPrice=r._medianPrice||market?.median_price?.value||price*.97;
 
   let condRows='';
-  if(priceSugg&&Object.keys(priceSugg).length>0){
-    condRows=CONDITIONS.map(c=>{const d=priceSugg[c.key];if(!d)return'';return`<div class="cond-row"><div class="cond-name"><span class="cond-dot" style="background:${c.color}"></span>${c.short}</div><div class="cond-val">${fmt(d.min)}</div><div class="cond-val hi">${fmt(d.median)}</div><div class="cond-val">${fmt(d.max)}</div></div>`;}).join('');
-  } else {
+  // Toujours utiliser marketplace/stats — source de vérité Discogs
+  if(market && (market.lowest_price?.value || market.median_price?.value)){
+    const lo=market.lowest_price?.value||0;
+    const med=market.median_price?.value||lo;
+    const hi=market.highest_price?.value||(med*1.35);
     const mults={M:1.25,NM:1.0,'VG+':0.8,VG:0.6,'G+':0.4};
-    condRows=CONDITIONS.map(c=>{const base=price*(mults[c.short]||1);return`<div class="cond-row"><div class="cond-name"><span class="cond-dot" style="background:${c.color}"></span>${c.short}</div><div class="cond-val">${fmt(base*.8)}</div><div class="cond-val hi">${fmt(base)}</div><div class="cond-val">${fmt(base*1.2)}</div></div>`;}).join('');
+    condRows=CONDITIONS.map(c=>{
+      const m=mults[c.short]||1;
+      return`<div class="cond-row"><div class="cond-name"><span class="cond-dot" style="background:${c.color}"></span>${c.short}</div><div class="cond-val">${fmt(lo*m)}</div><div class="cond-val hi">${fmt(med*m)}</div><div class="cond-val">${fmt(hi*m)}</div></div>`;
+    }).join('');
+  } else {
+    condRows=CONDITIONS.map(c=>`<div class="cond-row"><div class="cond-name"><span class="cond-dot" style="background:${c.color}"></span>${c.short}</div><div class="cond-val">—</div><div class="cond-val hi">—</div><div class="cond-val">—</div></div>`).join('');
   }
 
   $('detail-view').innerHTML=`
@@ -1044,7 +1050,7 @@ async function showDetail(idx){
         <div class="cond-head"><span>État</span><span>Minimum</span><span>Médian</span><span>Maximum</span></div>
         ${condRows}
       </div>
-      <div style="font-size:9px;color:var(--muted);margin-top:7px">M=Mint · NM=Near Mint · VG+=Very Good Plus · VG=Very Good · G+=Good Plus${priceSugg?' · Discogs Price Suggestions':' · Estimé'}</div>
+      <div style="font-size:9px;color:var(--muted);margin-top:7px">M=Mint · NM=Near Mint · VG+=Very Good Plus · VG=Very Good · G+=Good Plus${market?.median_price?.value?' · Discogs Marketplace Stats':' · Données non disponibles'}</div>
     </div>
 
     <div class="chart-panel" style="margin-bottom:12px">
