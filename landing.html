@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" id="html-root">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -149,6 +149,7 @@ footer{border-top:0.5px solid var(--border);padding:28px 40px;display:flex;align
     <a href="#pricing" class="nav-link">Tarifs</a>
     <a href="#how" class="nav-link">Comment ça marche</a>
   </div>
+  <button id="lang-btn-landing" onclick="setLangLanding(LANG === 'fr' ? 'en' : 'fr')" style="background:none;border:0.5px solid rgba(200,168,75,.3);color:#c8a84b;cursor:pointer;padding:4px 10px;border-radius:2px;font-family:monospace;font-size:11px;margin-right:8px">🇬🇧 EN</button>
   <a href="/api/auth/request" class="nav-cta">Se connecter</a>
 </nav>
 
@@ -324,5 +325,69 @@ footer{border-top:0.5px solid var(--border);padding:28px 40px;display:flex;align
   <div class="footer-copy">© 2026 OSSATURE</div>
 </footer>
 
+
+<script>
+let LANG = localStorage.getItem('ossature_lang') || 'fr';
+
+const LT = {
+  fr: {
+    nav_features: 'Fonctionnalités', nav_pricing: 'Tarifs', nav_login: 'Se connecter',
+    hero_title: 'Votre collection vinyle,<br>réinventée.',
+    hero_sub: 'Identifiez vos pressages exacts, suivez les prix en temps réel, découvrez la valeur cachée de votre collection.',
+    hero_btn: 'Commencer gratuitement',
+    hero_btn2: 'Voir la démo',
+    feat_title: 'Tout ce dont un collectionneur a besoin',
+    scan_title: 'Scan IA du macaron',
+    scan_desc: 'Photographiez le label central de votre vinyle. Notre IA identifie le pressage exact — pays, année, matrice.',
+    price_title: 'Prix en temps réel',
+    price_desc: 'Connecté au Discogs Marketplace. Suivez l'évolution des prix de chaque pressage de votre collection.',
+    battle_title: 'Pressing Battle',
+    battle_desc: 'Comparez tous les pressages d'un même album. Découvrez si le vôtre est le plus recherché.',
+    pricing_title: 'Tarifs simples',
+    free_title: 'Gratuit', free_desc: 'Pour commencer',
+    pro_title: 'Premium', pro_desc: 'Pour les passionnés',
+    footer_features: 'Fonctionnalités', footer_pricing: 'Tarifs', footer_login: 'Se connecter',
+  },
+  en: {
+    nav_features: 'Features', nav_pricing: 'Pricing', nav_login: 'Sign in',
+    hero_title: 'Your vinyl collection,<br>reinvented.',
+    hero_sub: 'Identify your exact pressings, track prices in real time, discover the hidden value of your collection.',
+    hero_btn: 'Start for free',
+    hero_btn2: 'Watch demo',
+    feat_title: 'Everything a collector needs',
+    scan_title: 'AI Label Scan',
+    scan_desc: 'Photograph the center label of your vinyl. Our AI identifies the exact pressing — country, year, matrix code.',
+    price_title: 'Real-time prices',
+    price_desc: 'Connected to Discogs Marketplace. Track price evolution for every pressing in your collection.',
+    battle_title: 'Pressing Battle',
+    battle_desc: 'Compare all pressings of the same album. Find out if yours is the most sought-after.',
+    pricing_title: 'Simple pricing',
+    free_title: 'Free', free_desc: 'To get started',
+    pro_title: 'Premium', pro_desc: 'For enthusiasts',
+    footer_features: 'Features', footer_pricing: 'Pricing', footer_login: 'Sign in',
+  }
+};
+
+function lt(key) { return LT[LANG][key] || LT['fr'][key] || key; }
+
+function setLangLanding(lang) {
+  LANG = lang;
+  localStorage.setItem('ossature_lang', lang);
+  document.querySelectorAll('[data-lt]').forEach(el => {
+    const key = el.dataset.lt;
+    if(el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+      el.placeholder = lt(key);
+    } else {
+      el.innerHTML = lt(key);
+    }
+  });
+  const btn = document.getElementById('lang-btn-landing');
+  if(btn) btn.textContent = lang === 'fr' ? '🇬🇧 EN' : '🇫🇷 FR';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  setLangLanding(LANG);
+});
+</script>
 </body>
 </html>
