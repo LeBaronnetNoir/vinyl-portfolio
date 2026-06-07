@@ -416,6 +416,7 @@ canvas{display:block}
       <button onclick="showWantlist()" style="font-size:10px;color:var(--muted2);cursor:pointer;border:0.5px solid var(--border2);padding:3px 10px;border-radius:2px;background:transparent;font-family:var(--mono);transition:all .2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted2)'">❤️ Wantlist</button>
     </div>
     <span class="t-db" id="db-status"></span>
+    <button id="lang-btn" onclick="setLang(LANG === 'fr' ? 'en' : 'fr')" title="Switch language" style="font-size:14px;background:none;border:none;cursor:pointer;padding:2px 4px;display:none">🇬🇧</button>
     <button id="reset-cache-btn" onclick="resetPriceCache()" title="Vider le cache prix et recharger depuis Discogs" style="font-size:10px;color:var(--muted2);cursor:pointer;border:0.5px solid var(--border2);padding:3px 8px;border-radius:2px;background:transparent;font-family:var(--mono);transition:all .2s;display:none" onmouseover="this.style.color='var(--red)';this.style.borderColor='var(--red)'" onmouseout="this.style.color='var(--muted2)';this.style.borderColor='var(--border2)'">⟳ Reset Prix</button>
     <span class="t-sync" id="sync-lbl"></span>
     <button class="back-btn" id="back-btn" onclick="showPortfolio()">← Collection</button>
@@ -905,6 +906,88 @@ function prevVinylTrack() {
 function showVinylPlayer() {
   const player = document.getElementById('vinyl-player');
   if(player) { player.style.display = 'block'; updateVinylTrack(); }
+}
+
+
+// ── SYSTÈME DE TRADUCTION FR/EN ─────────────────────────────
+let LANG = localStorage.getItem('ossature_lang') || 'fr';
+
+const T = {
+  fr: {
+    heatmap: '🔥 Heatmap', catalogue: '🔍 Catalogue', communaute: '👥 Communauté',
+    wantlist: '❤️ Wantlist', retour: '← Retour à la collection', retourResultats: '← Retour aux résultats',
+    valeurTotale: 'Valeur totale estimée', venteRapide: 'Vente rapide', enHausse: 'En hausse',
+    meilleurActif: 'Meilleur actif', historiqueReel: 'Historique réel', moyenne: 'Moyenne',
+    disquesTraces: 'disques tracés', parDisque: '/ disque', mois: '12 mois',
+    prixPlusBas: 'Prix le plus bas', valeurMarche: 'Valeur de marché', votreExemplaire: 'Votre exemplaire',
+    meilleureVente: '✦ Meilleure vente', prixAchat: 'P&L — Prix d'achat', enregistrer: 'Enregistrer',
+    prixParEtat: 'Prix par état de conservation', ficheEditoriale: 'Fiche éditoriale',
+    authenticityScore: 'Authenticity Score', pressingBattle: 'Pressing Battle',
+    scanner: '📷 Scanner', lierCollection: '🔗 Lier à ma collection', ajouterWantlist: '❤️ Ajouter à la Wantlist',
+    rechercherDiscogs: '🔍 Rechercher sur Discogs', voirDiscogs: '↗ Voir sur Discogs',
+    supprimer: '🗑 Supprimer', creerAlerte: '🔔 Créer une alerte prix',
+    scannerVinyle: 'Scanner un vinyle', pochette: '🎵 Pochette', macaron: '🔵 Macaron',
+    chargement: 'Chargement', communauteOssature: 'Communauté OSSATURE',
+    collectionneurs: 'collectionneurs', classementValeur: 'Classement par valeur de collection',
+    votrePosition: 'Votre position', sur: 'sur', disques: 'disques',
+    rechercherCollection: '🔍 Rechercher dans ma collection...',
+    rechercherWantlist: '🔍 Rechercher dans ma wantlist...',
+    maWantlist: '❤️ Ma Wantlist', vinylesCherches: 'vinyles recherchés',
+    resetPrix: '⟳ Reset Prix', sync: 'Sync',
+    donnéesNonDispo: 'Données non disponibles', estime: 'Estimé',
+    reel: 'Réel', historiquReel: 'Historique réel',
+  },
+  en: {
+    heatmap: '🔥 Heatmap', catalogue: '🔍 Catalogue', communaute: '👥 Community',
+    wantlist: '❤️ Wantlist', retour: '← Back to collection', retourResultats: '← Back to results',
+    valeurTotale: 'Estimated total value', venteRapide: 'Quick sale', enHausse: 'Rising',
+    meilleurActif: 'Best asset', historiqueReel: 'Real history', moyenne: 'Average',
+    disquesTraces: 'tracked records', parDisque: '/ record', mois: '12 months',
+    prixPlusBas: 'Lowest price', valeurMarche: 'Market value', votreExemplaire: 'Your copy',
+    meilleureVente: '✦ Best sale', prixAchat: 'P&L — Purchase price', enregistrer: 'Save',
+    prixParEtat: 'Price by condition', ficheEditoriale: 'Editorial',
+    authenticityScore: 'Authenticity Score', pressingBattle: 'Pressing Battle',
+    scanner: '📷 Scan', lierCollection: '🔗 Add to my collection', ajouterWantlist: '❤️ Add to Wantlist',
+    rechercherDiscogs: '🔍 Search on Discogs', voirDiscogs: '↗ View on Discogs',
+    supprimer: '🗑 Delete', creerAlerte: '🔔 Create price alert',
+    scannerVinyle: 'Scan a vinyl', pochette: '🎵 Cover', macaron: '🔵 Label',
+    chargement: 'Loading', communauteOssature: 'OSSATURE Community',
+    collectionneurs: 'collectors', classementValeur: 'Ranked by collection value',
+    votrePosition: 'Your position', sur: 'of', disques: 'records',
+    rechercherCollection: '🔍 Search my collection...',
+    rechercherWantlist: '🔍 Search my wantlist...',
+    maWantlist: '❤️ My Wantlist', vinylesCherches: 'wanted records',
+    resetPrix: '⟳ Reset Prices', sync: 'Sync',
+    donnéesNonDispo: 'Data unavailable', estime: 'Estimated',
+    reel: 'Real', historiquReel: 'Real history',
+  }
+};
+
+function t(key) { return T[LANG][key] || T['fr'][key] || key; }
+
+function setLang(lang) {
+  LANG = lang;
+  localStorage.setItem('ossature_lang', lang);
+  // Mettre à jour le bouton
+  const btn = document.getElementById('lang-btn');
+  if(btn) btn.textContent = lang === 'fr' ? '🇬🇧' : '🇫🇷';
+  // Re-render l'interface
+  if(typeof renderPortfolio === 'function') renderPortfolio();
+  // Mettre à jour les éléments statiques de la nav
+  updateNavLang();
+}
+
+function updateNavLang() {
+  const navLinks = document.getElementById('nav-links');
+  if(!navLinks) return;
+  navLinks.querySelectorAll('[data-tkey]').forEach(el => {
+    el.textContent = t(el.dataset.tkey);
+  });
+  // Mobile menu
+  const mobileMenu = document.getElementById('mobile-menu');
+  if(mobileMenu) mobileMenu.querySelectorAll('[data-tkey]').forEach(el => {
+    el.textContent = t(el.dataset.tkey);
+  });
 }
 
 // ── EFFET PARALLAXE POCHETTES ──────────────────────────────
@@ -3926,6 +4009,12 @@ async function init(){
     const resetBtn = document.getElementById('reset-cache-btn');
     if(resetBtn) resetBtn.style.display = (USER === 'estebanveis') ? 'inline-block' : 'none';
     showVinylPlayer();
+    // Afficher le bouton langue
+    const langBtn = document.getElementById('lang-btn');
+    if(langBtn) {
+      langBtn.style.display = 'inline-block';
+      langBtn.textContent = LANG === 'fr' ? '🇬🇧' : '🇫🇷';
+    }
     // Charger et afficher le statut de confidentialité
     loadPrivacyStatus();
       if(dbEl){dbEl.textContent='DB ●';dbEl.className='t-db ok';}
