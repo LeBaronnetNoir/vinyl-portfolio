@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OSSATURE</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%23111'/><circle cx='50' cy='50' r='30' fill='none' stroke='%231a1a1a' stroke-width='4'/><circle cx='50' cy='50' r='16' fill='%23c8a84b'/><circle cx='50' cy='50' r='5' fill='%23111'/></svg>">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300;1,600&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
@@ -146,7 +147,16 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .t-title{color:var(--text);font-size:10px;flex:1}
 .t-dur{color:var(--muted);font-size:9px}
 
-.loading{text-align:center;padding:70px 0;color:var(--muted)}
+.loading{text-align:center;padding:40px 0;color:var(--muted)}
+.vinyl-loader{display:inline-block;animation:vinyl-spin 2s linear infinite;transform-origin:center}
+@keyframes vinyl-spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes dot-pulse{0%,100%{opacity:.3}50%{opacity:1}}
+.vinyl-dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--gold);margin:0 3px;animation:dot-pulse 1.4s ease-in-out infinite}
+.vinyl-dot:nth-child(2){animation-delay:.2s}
+.vinyl-dot:nth-child(3){animation-delay:.4s}
+.card{transform-style:preserve-3d;transition:transform .1s ease}
+.card img{transition:transform .1s ease}
+.vinyl-inline-loader{width:40px;height:40px;border-radius:50%;border:3px solid #333;border-top:3px solid #c8a84b;animation:vinyl-spin .8s linear infinite;display:inline-block;margin-bottom:8px}
 .loading-title{font-family:var(--serif);font-size:26px;font-weight:300;color:var(--gold);font-style:italic;margin-bottom:8px}
 .dot{display:inline-block;animation:blink 1.4s infinite}
 .dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
@@ -323,6 +333,72 @@ canvas{display:block}
 .hm-stat{background:var(--surface);border:0.5px solid var(--border2);border-radius:3px;padding:12px 14px;text-align:center}
 .hm-stat-val{font-family:var(--serif);font-size:22px;font-weight:600;color:var(--gold2);line-height:1}
 .hm-stat-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:4px}
+
+@media (max-width: 640px) {
+  .vinyl-player-desktop { display: none !important; }
+  #hamburger { display: block !important }
+  #nav-links { display: none !important }
+  #mobile-menu.open { display: flex !important }
+
+  /* Navigation */
+  .nav-links { display: none }
+  .nav { padding: 0 12px; gap: 8px }
+  .logo { font-size: 14px }
+  .nav-user { font-size: 11px }
+  .sync-time { display: none }
+
+  /* Grilles → colonnes */
+  .cards-grid { grid-template-columns: repeat(2, 1fr); gap: 6px }
+  .catalog-grid { grid-template-columns: repeat(2, 1fr); gap: 6px }
+  .battle-grid { grid-template-columns: repeat(2, 1fr); gap: 6px }
+  .hm-grid { grid-template-columns: repeat(2, 1fr); gap: 6px }
+
+  /* Stats bar */
+  .pbar { grid-template-columns: 1fr; }
+  .pbar-main { padding: 14px }
+  .pval { font-size: 28px }
+  .pstat { display: none }
+
+  /* Detail hero */
+  .d-hero { grid-template-columns: 1fr; gap: 12px }
+  .d-hero-img { width: 100%; max-width: 200px; margin: 0 auto }
+  .d-stats { grid-template-columns: repeat(2, 1fr) }
+
+  /* Conditions table */
+  .cond-head, .cond-row { grid-template-columns: 80px repeat(3, 1fr); font-size: 10px }
+
+  /* Chat */
+  .chat-wrap { grid-template-columns: 1fr; grid-template-rows: auto 1fr }
+  .chat-channels { display: flex; overflow-x: auto; gap: 6px; padding-bottom: 8px }
+  .chat-channel { white-space: nowrap }
+
+  /* Heatmap stats */
+  .hm-stats { grid-template-columns: 1fr 1fr }
+
+  /* Scan modal */
+  .scan-box { width: 95%; padding: 16px }
+  .scan-action-btn { padding: 10px 12px; font-size: 11px }
+
+  /* Buttons bar */
+  .alert-types { grid-template-columns: 1fr }
+
+  /* Ticker */
+  .ticker { font-size: 11px }
+
+  /* Cards */
+  .card { padding: 8px }
+  .card-title { font-size: 11px }
+  .card-price { font-size: 13px }
+
+  /* Battle */
+  .battle-scores { grid-template-columns: 1fr }
+
+  /* Main container */
+  .main { padding: 12px }
+
+  /* Detail grid */
+  .d-grid { grid-template-columns: 1fr }
+}
 </style>
 </head>
 <body>
@@ -330,21 +406,61 @@ canvas{display:block}
   <div class="topbar">
     <span class="logo">OSSATURE</span>
     <span class="t-user" id="user-lbl">—</span>
+    <button id="privacy-btn" onclick="togglePrivacy()" title="Rendre ma collection publique/privée" style="font-size:11px;background:none;border:none;cursor:pointer;color:var(--muted2);padding:2px 4px;display:none">🔓</button>
     <a href="/api/auth/logout" id="logout-btn" style="font-size:9px;color:var(--muted);text-decoration:none;font-family:var(--mono);padding:2px 7px;border:0.5px solid var(--border2);border-radius:2px" onmouseover="this.style.color='var(--red)';this.style.borderColor='var(--red)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border2)'">✕</a>
     <span class="t-count" id="count-lbl"></span>
-    <button onclick="showHeatmap()" style="font-size:10px;color:var(--gold);cursor:pointer;border:0.5px solid var(--gold);padding:3px 10px;border-radius:2px;background:rgba(184,150,46,.08);font-family:var(--mono);transition:all .2s" onmouseover="this.style.background='rgba(184,150,46,.15)'" onmouseout="this.style.background='rgba(184,150,46,.08)'">🔥 Heatmap</button>
-    <button onclick="showCatalog()" style="font-size:10px;color:var(--muted2);cursor:pointer;border:0.5px solid var(--border2);padding:3px 10px;border-radius:2px;background:transparent;font-family:var(--mono);transition:all .2s" onmouseover="this.style.color='var(--text)';this.style.borderColor='var(--border2)'" onmouseout="this.style.color='var(--muted2)'">🔍 Catalogue</button>
-    <button onclick="showCommunity()" style="font-size:10px;color:var(--muted2);cursor:pointer;border:0.5px solid var(--border2);padding:3px 10px;border-radius:2px;background:transparent;font-family:var(--mono);transition:all .2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted2)'">👥 Communauté</button>
-    <button onclick="showWantlist()" style="font-size:10px;color:var(--muted2);cursor:pointer;border:0.5px solid var(--border2);padding:3px 10px;border-radius:2px;background:transparent;font-family:var(--mono);transition:all .2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted2)'">❤️ Wantlist</button>
+    <!-- Nav links — cachés sur mobile -->
+    <div class="nav-links" id="nav-links">
+      <button onclick="showHeatmap()" style="font-size:10px;color:var(--gold);cursor:pointer;border:0.5px solid var(--gold);padding:3px 10px;border-radius:2px;background:rgba(184,150,46,.08);font-family:var(--mono);transition:all .2s" onmouseover="this.style.background='rgba(184,150,46,.15)'" onmouseout="this.style.background='rgba(184,150,46,.08)'">🔥 Heatmap</button>
+      <button onclick="showCatalog()" style="font-size:10px;color:var(--muted2);cursor:pointer;border:0.5px solid var(--border2);padding:3px 10px;border-radius:2px;background:transparent;font-family:var(--mono);transition:all .2s" onmouseover="this.style.color='var(--text)';this.style.borderColor='var(--border2)'" onmouseout="this.style.color='var(--muted2)'">🔍 Catalogue</button>
+      <button onclick="showCommunity()" style="font-size:10px;color:var(--muted2);cursor:pointer;border:0.5px solid var(--border2);padding:3px 10px;border-radius:2px;background:transparent;font-family:var(--mono);transition:all .2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted2)'">👥 Communauté</button>
+      <button onclick="showWantlist()" style="font-size:10px;color:var(--muted2);cursor:pointer;border:0.5px solid var(--border2);padding:3px 10px;border-radius:2px;background:transparent;font-family:var(--mono);transition:all .2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted2)'">❤️ Wantlist</button>
+    </div>
     <span class="t-db" id="db-status"></span>
+    <button id="lang-btn" onclick="toggleLang()" title="Switch language / Changer de langue" style="font-size:11px;background:var(--surface2);border:0.5px solid var(--gold);border-radius:2px;cursor:pointer;padding:3px 8px;display:inline-block;color:var(--gold);font-family:var(--mono);font-weight:500">EN</button>
     <button id="reset-cache-btn" onclick="resetPriceCache()" title="Vider le cache prix et recharger depuis Discogs" style="font-size:10px;color:var(--muted2);cursor:pointer;border:0.5px solid var(--border2);padding:3px 8px;border-radius:2px;background:transparent;font-family:var(--mono);transition:all .2s;display:none" onmouseover="this.style.color='var(--red)';this.style.borderColor='var(--red)'" onmouseout="this.style.color='var(--muted2)';this.style.borderColor='var(--border2)'">⟳ Reset Prix</button>
     <span class="t-sync" id="sync-lbl"></span>
     <button class="back-btn" id="back-btn" onclick="showPortfolio()">← Collection</button>
+    <!-- Hamburger mobile -->
+    <button id="hamburger" onclick="toggleMobileMenu()" style="display:none;font-size:18px;color:var(--muted2);cursor:pointer;border:0.5px solid var(--border2);padding:3px 8px;border-radius:2px;background:transparent">☰</button>
   </div>
+  <!-- Menu mobile déroulant -->
+  <div id="mobile-menu" style="display:none;background:var(--surface);border-bottom:0.5px solid var(--border2);padding:10px 16px;flex-direction:column;gap:8px">
+    <button onclick="showHeatmap();closeMobileMenu()" style="font-size:13px;color:var(--gold);cursor:pointer;border:0.5px solid var(--gold);padding:8px 14px;border-radius:2px;background:rgba(184,150,46,.08);font-family:var(--mono);text-align:left;width:100%">🔥 Heatmap</button>
+    <button onclick="showCatalog();closeMobileMenu()" style="font-size:13px;color:var(--muted2);cursor:pointer;border:0.5px solid var(--border2);padding:8px 14px;border-radius:2px;background:transparent;font-family:var(--mono);text-align:left;width:100%">🔍 Catalogue</button>
+    <button onclick="showCommunity();closeMobileMenu()" style="font-size:13px;color:var(--muted2);cursor:pointer;border:0.5px solid var(--border2);padding:8px 14px;border-radius:2px;background:transparent;font-family:var(--mono);text-align:left;width:100%">👥 Communauté</button>
+    <button onclick="showWantlist();closeMobileMenu()" style="font-size:13px;color:var(--muted2);cursor:pointer;border:0.5px solid var(--border2);padding:8px 14px;border-radius:2px;background:transparent;font-family:var(--mono);text-align:left;width:100%">❤️ Wantlist</button>
+  </div>
+  <!-- Player vinyle — sous la topbar à gauche -->
+  <div id="vinyl-player-wrap" style="display:none;position:fixed;top:52px;left:28px;z-index:99;flex-direction:column;align-items:center;gap:6px;padding:12px 0" class="vinyl-player-desktop">
+    <svg id="vinyl-disc" width="80" height="80" viewBox="0 0 100 100" style="cursor:pointer;filter:drop-shadow(0 4px 20px rgba(0,0,0,.9))" onclick="toggleVinylPlay()">
+      <circle cx="50" cy="50" r="48" fill="#111"/>
+      <circle cx="50" cy="50" r="42" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+      <circle cx="50" cy="50" r="36" fill="none" stroke="#222" stroke-width="1.5"/>
+      <circle cx="50" cy="50" r="30" fill="none" stroke="#1a1a1a" stroke-width="1"/>
+      <circle cx="50" cy="50" r="24" fill="none" stroke="#222" stroke-width="0.8"/>
+      <circle cx="50" cy="50" r="18" fill="none" stroke="#1a1a1a" stroke-width="0.8"/>
+      <circle cx="50" cy="50" r="14" fill="#c8a84b"/>
+      <circle cx="50" cy="50" r="10" fill="#b8943a"/>
+      <text x="50" y="48" text-anchor="middle" font-family="Georgia,serif" font-size="6" font-weight="700" fill="#1a0f00" letter-spacing="0.5">OSS</text>
+      <text x="50" y="55" text-anchor="middle" font-family="Georgia,serif" font-size="4" fill="#2a1a00">ATURE</text>
+      <circle cx="50" cy="50" r="2.5" fill="#111"/>
+    </svg>
+    <div id="vinyl-track-name" style="font-size:9px;color:var(--muted);max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center"></div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <button onclick="prevVinylTrack()" style="font-size:12px;background:none;border:none;color:var(--muted2);cursor:pointer">⏮</button>
+      <button onclick="toggleVinylPlay()" id="vinyl-play-btn" style="font-size:15px;background:none;border:none;color:var(--gold);cursor:pointer">▶</button>
+      <button onclick="nextVinylTrack()" style="font-size:12px;background:none;border:none;color:var(--muted2);cursor:pointer">⏭</button>
+    </div>
+  </div>
+
   <div class="content">
 
 <!-- NOTIFICATION BAR -->
 <div class="notif-bar" id="notif-bar"></div>
+
+<!-- VINYL PLAYER -->
+<audio id="vinyl-audio" preload="none"></audio>
 
 <!-- ALERT MODAL -->
 <div class="alert-modal" id="alert-modal" style="display:none">
@@ -437,9 +553,9 @@ canvas{display:block}
     
     <img id="scan-preview" class="scan-preview" alt="Preview">
     <div class="scan-loading" id="scan-loading">
-      <div style="display:flex;align-items:center;gap:8px;justify-content:center">
-        <div class="live-dot" style="background:var(--gold)"></div>
-        Identification en cours...
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;justify-content:center">
+        <svg class="vinyl-loader" width="60" height="60" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#111"/><circle cx="50" cy="50" r="42" fill="none" stroke="#1a1a1a" stroke-width="2"/><circle cx="50" cy="50" r="34" fill="none" stroke="#222" stroke-width="1.5"/><circle cx="50" cy="50" r="26" fill="none" stroke="#1a1a1a" stroke-width="1"/><circle cx="50" cy="50" r="18" fill="#c8a84b"/><circle cx="50" cy="50" r="13" fill="#b8943a"/><text x="50" y="48" text-anchor="middle" font-family="Georgia,serif" font-size="6" font-weight="700" fill="#1a0f00" letter-spacing="0.5">OSS</text><text x="50" y="55" text-anchor="middle" font-family="Georgia,serif" font-size="4.5" fill="#2a1a00">ATURE</text><circle cx="50" cy="50" r="2.5" fill="#111"/></svg>
+        ${t('identificationCours')}
       </div>
     </div>
     
@@ -461,8 +577,22 @@ canvas{display:block}
 </div>
     <div id="portfolio-view">
       <div class="loading">
-        <div class="loading-title">Vinyl Portfolio</div>
-        Chargement<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
+        <svg class="vinyl-loader" width="120" height="120" viewBox="0 0 100 100">
+  <circle cx="50" cy="50" r="48" fill="#111"/>
+  <circle cx="50" cy="50" r="42" fill="none" stroke="#1a1a1a" stroke-width="1.5"/>
+  <circle cx="50" cy="50" r="36" fill="none" stroke="#222" stroke-width="1"/>
+  <circle cx="50" cy="50" r="30" fill="none" stroke="#1a1a1a" stroke-width="1"/>
+  <circle cx="50" cy="50" r="24" fill="none" stroke="#222" stroke-width="0.8"/>
+  <circle cx="50" cy="50" r="18" fill="#c8a84b"/>
+  <circle cx="50" cy="50" r="14" fill="#b8943a"/>
+  <text x="50" y="48" text-anchor="middle" font-family="Georgia,serif" font-size="6" font-weight="700" fill="#1a0f00" letter-spacing="1">OSSATURE</text>
+  <text x="50" y="55" text-anchor="middle" font-family="monospace" font-size="4" fill="#2a1a00" letter-spacing="1">33⅓ RPM</text>
+  <circle cx="50" cy="50" r="2.5" fill="#111"/>
+</svg>
+        <div class="loading-title" style="margin-top:16px">Vinyl Portfolio</div>
+        <div style="margin-top:8px">
+          <span class="vinyl-dot"></span><span class="vinyl-dot"></span><span class="vinyl-dot"></span>
+        </div>
       </div>
     </div>
     <div id="detail-view"></div>
@@ -568,15 +698,21 @@ async function loadHistory() {
   // Get all history for this user, last 365 days
   const since = new Date();
   since.setFullYear(since.getFullYear()-1);
-  const data = await sbFetch(
-    `/price_history?discogs_user=eq.${USER}&recorded_at=gte.${since.toISOString()}&order=recorded_at.asc&limit=10000`
-  );
-  // Group by release_id
+  // Utiliser la vue dédupliquée price_history_daily (1 point par disque par jour)
+  const data = await sbFetch(`/price_history_daily?discogs_user=eq.${USER}&recorded_at=gte.${since.toISOString()}&select=release_id,price,lowest_price,recorded_at&order=release_id.asc,recorded_at.asc&limit=10000`);
+  // Group by release_id — 1 point par jour max
   const map = {};
+  const seen = new Set();
   for (const row of (data||[])) {
+    const price = row.price || row.median_price || row.lowest_price;
+    if(!price || price <= 0) continue;
+    const day = row.recorded_at?.split('T')[0];
+    const key = row.release_id + '_' + day;
+    if(seen.has(key)) continue;
+    seen.add(key);
     if (!map[row.release_id]) map[row.release_id] = [];
     map[row.release_id].push({
-      price: row.price || row.median_price || row.lowest_price,
+      price,
       recorded_at: row.recorded_at
     });
   }
@@ -589,7 +725,8 @@ async function apiFetch(url) {
   let apiUrl = url;
   if (url.startsWith(discogsBase)) {
     const path = url.replace(discogsBase, '');
-    apiUrl = `/api/discogs?path=${encodeURIComponent(path)}`;
+    const userToken = encodeURIComponent(TOKEN || '');
+    apiUrl = `/api/discogs?path=${path}&_token=${userToken}`;
   }
   const r = await fetch(apiUrl);
   if (!r.ok) throw new Error(`Discogs ${r.status}`);
@@ -635,9 +772,651 @@ async function refreshPricesBackground(toRefresh, allReleases) {
   if(notif && notif.textContent.includes('Rechargement')) { notif.style.display='none'; }
 }
 
+function toggleMobileMenu() {
+  const m = document.getElementById('mobile-menu');
+  m.classList.toggle('open');
+}
+function closeMobileMenu() {
+  const m = document.getElementById('mobile-menu');
+  m.classList.remove('open');
+}
+
+
+
+// ── CONFIDENTIALITÉ ─────────────────────────────────────────
+let _isPrivate = false;
+
+async function loadPrivacyStatus() {
+  try {
+    const profile = await fetch('/api/social?action=profile&username=' + USER).then(r => r.json());
+    _isPrivate = profile?.is_private || false;
+    const btn = document.getElementById('privacy-btn');
+    if(btn) {
+      btn.style.display = 'inline-block';
+      btn.textContent = _isPrivate ? '🔒' : '🔓';
+      btn.title = _isPrivate ? t('collectionPriveeMsg') : t('collectionPubliqueMsg');
+    }
+  } catch(e) {}
+}
+
+async function togglePrivacy() {
+  _isPrivate = !_isPrivate;
+  const btn = document.getElementById('privacy-btn');
+  if(btn) {
+    btn.textContent = _isPrivate ? '🔒' : '🔓';
+    btn.title = _isPrivate ? t('collectionPriveeMsg') : t('collectionPubliqueMsg');
+  }
+  try {
+    await fetch('/api/social?action=update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username: USER,
+        is_private: _isPrivate,
+        total_value: releases.reduce((s,r) => s+(r._price||0), 0),
+        total_releases: releases.length,
+        top_genre: releases[0]?.basic_information?.genres?.[0] || 'Rock',
+        badge: getBadge(releases.length, releases.reduce((s,r) => s+(r._price||0), 0))
+      })
+    });
+    showNotif(_isPrivate ? t('collectionPrivee') : t('collectionPublique'), 
+              _isPrivate ? t('collectionPriveeMsg') : t('collectionPubliqueMsg'), 
+              'success');
+  } catch(e) {
+    showNotif('Erreur', e.message, 'error');
+  }
+}
+
+// ── VINYL PLAYER ────────────────────────────────────────────
+const VINYL_TRACKS = [
+  { name: "Louis Armstrong — What a Wonderful World", url: "https://vtfuzcxkdrnkbonrlxbk.supabase.co/storage/v1/object/public/audio/03%20-%20Louis%20ARMSTRONG%20-%20Attention%20-%20Amiga%20855484%20-%20Side%20A%20-%20What%20a%20wonderful%20world.mp3" },
+  { name: "Louis Armstrong — C'est Si Bon (1950)", url: "https://vtfuzcxkdrnkbonrlxbk.supabase.co/storage/v1/object/public/audio/09C'est%20Si%20Bon.mp3" },
+  { name: "Scott Joplin — The Entertainer (1902)", url: "https://vtfuzcxkdrnkbonrlxbk.supabase.co/storage/v1/object/public/audio/abydos_music-scott-joplin-the-entertainer-216754.mp3" },
+  { name: "Blind Lemon Jefferson — One Dime Blues (1927)", url: "https://vtfuzcxkdrnkbonrlxbk.supabase.co/storage/v1/object/public/audio/One_Dime_Blues.mp3" },
+  { name: "Pine Top Smith — Pinetop's Blues (1928)", url: "https://vtfuzcxkdrnkbonrlxbk.supabase.co/storage/v1/object/public/audio/Pinetops_Blues.mp3" },
+];
+
+// Fallback : créer un son de test si aucune URL ne fonctionne
+function createTestTone() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.value = 440;
+    gain.gain.value = 0.1;
+    osc.start();
+    setTimeout(() => osc.stop(), 500);
+  } catch(e) {}
+}
+
+let vinylTrackIdx = Math.floor(Math.random() * VINYL_TRACKS.length);
+let vinylPlaying = false;
+let vinylSpinInterval = null;
+let vinylAngle = 0;
+
+function updateVinylTrack() {
+  const track = VINYL_TRACKS[vinylTrackIdx];
+  const audio = document.getElementById('vinyl-audio');
+  const name = document.getElementById('vinyl-track-name');
+  if(audio) { audio.src = track.url; audio.load(); }
+  if(name) name.textContent = track.name;
+}
+
+function toggleVinylPlay() {
+  const audio = document.getElementById('vinyl-audio');
+  const btn = document.getElementById('vinyl-play-btn');
+  const disc = document.getElementById('vinyl-disc');
+  if(!audio || !disc) return;
+  if(vinylPlaying) {
+    audio.pause();
+    vinylPlaying = false;
+    if(btn) btn.textContent = '▶';
+    disc.style.animation = 'none';
+  } else {
+    if(!audio.src || audio.src === window.location.href) updateVinylTrack();
+    audio.play().catch(e => {
+      console.log('Audio error:', e);
+      // Essayer le prochain morceau si celui-ci échoue
+      vinylTrackIdx = (vinylTrackIdx + 1) % VINYL_TRACKS.length;
+      updateVinylTrack();
+      setTimeout(() => audio.play().catch(()=>{}), 500);
+    });
+    vinylPlaying = true;
+    if(btn) btn.textContent = '⏸';
+    disc.style.animation = 'vinyl-spin 3s linear infinite';
+  }
+}
+
+function nextVinylTrack() {
+  vinylTrackIdx = (vinylTrackIdx + 1) % VINYL_TRACKS.length;
+  updateVinylTrack();
+  if(vinylPlaying) {
+    document.getElementById('vinyl-audio')?.play().catch(()=>{});
+  }
+}
+
+function prevVinylTrack() {
+  vinylTrackIdx = (vinylTrackIdx - 1 + VINYL_TRACKS.length) % VINYL_TRACKS.length;
+  updateVinylTrack();
+  if(vinylPlaying) {
+    document.getElementById('vinyl-audio')?.play().catch(()=>{});
+  }
+}
+
+function showVinylPlayer() {
+  const wrap = document.getElementById('vinyl-player-wrap');
+  if(wrap && window.innerWidth > 640) { wrap.style.display = 'flex'; }
+  updateVinylTrack();
+}
+
+
+// ── SYSTÈME DE TRADUCTION FR/EN ─────────────────────────────
+let LANG = localStorage.getItem('ossature_lang') || 'fr';
+function toggleLang() {
+  const newLang = LANG === 'fr' ? 'en' : 'fr';
+  setLang(newLang);
+}
+
+const T = {
+  fr: {
+    heatmap: '🔥 Heatmap', catalogue: '🔍 Catalogue', communaute: '👥 Communauté',
+    wantlist: '❤️ Wantlist', retour: '← Retour à la collection', retourResultats: '← Retour aux résultats',
+    valeurTotale: 'Valeur totale estimée', venteRapide: 'Vente rapide', enHausse: 'En hausse',
+    meilleurActif: 'Meilleur actif', historiqueReel: 'Historique réel', moyenne: 'Moyenne',
+    disquesTraces: 'disques tracés', parDisque: '/ disque', mois: '12 mois',
+    prixPlusBas: 'Prix le plus bas', valeurMarche: 'Valeur de marché', votreExemplaire: 'Votre exemplaire',
+    meilleureVente: "✦ Meilleure vente", prixAchat: "P&L — Prix d'achat", enregistrer: "Enregistrer",
+    prixParEtat: 'Prix par état de conservation', ficheEditoriale: 'Fiche éditoriale',
+    authenticityScore: 'Authenticity Score', pressingBattle: 'Pressing Battle',
+    scanner: '📷 Scanner', lierCollection: '🔗 Lier à ma collection', ajouterWantlist: '❤️ Ajouter à la Wantlist',
+    rechercherDiscogs: '🔍 Rechercher sur Discogs', voirDiscogs: '↗ Voir sur Discogs',
+    supprimer: '🗑 Supprimer', creerAlerte: '🔔 Créer une alerte prix',
+    scannerVinyle: 'Scan a vinyl', pochette: '🎵 Pochette', macaron: '🔵 Macaron',
+    chargement: 'Chargement', communauteOssature: 'Communauté OSSATURE',
+    collectionneurs: 'collectionneurs', classementValeur: 'Classement par valeur de collection',
+    votrePosition: 'Your position', sur: 'sur', disques: 'disques',
+    rechercherCollection: '🔍 Rechercher dans ma collection...',
+    rechercherWantlist: '🔍 Rechercher dans ma wantlist...',
+    maWantlist: '❤️ Ma Wantlist', vinylesCherches: 'vinyles recherchés',
+    disques: 'disques', sommePrixBas: 'Somme des prix les plus bas',
+    artisteAZ: 'Artiste A→Z', prixDesc: 'Prix ↓', prixAsc: 'Prix ↑',
+    anneeDesc: 'Année ↓', perfDesc: 'Performance ↓', reelDabord: 'Historique réel d\'abord',
+    cercleAbsent: 'Cercle absent = données estimées', dblClic: 'Double-cliquez pour le détail complet',
+    graphiquesInfo: 'Les graphiques s\'enrichissent à chaque ouverture',
+    prixMedian: 'Prix médian', potentielSpec: 'Potentiel spéculatif',
+    infosPressage: 'INFOS PRESSAGE & MARCHÉ', dernieresVentes: 'DERNIÈRES VENTES (ESTIMÉES)',
+    contexte: 'Contexte', leSon: 'Le Son', aSavoir: 'À savoir',
+    tracklist: 'TRACKLIST', topGainers: '🚀 Top Gainers — Disques en hausse',
+    enBaisse: '📉 En baisse — Opportunités d\'achat ?',
+    potentielSpec2: '💎 Potentiel spéculatif — Écart prix bas / meilleure vente',
+    modePochette: 'Mode pochette — identification de l album',
+    modeMacaron: 'Mode macaron — identification du pressage exact',
+    identificationCours: 'Identification en cours...',
+    clickPhoto: 'Cliquez pour choisir une photo<br>ou glissez-deposez ici',
+    prixAchatNonRens: 'Prix d\'achat non renseigné', prixPaye: 'Prix payé (€)',
+    vous: 'vous', affichage100: 'Affichage des 100 premiers sur',
+    millionsReleases: '15 millions de releases · Recherchez n\'importe quel vinyle',
+    rechercherCatalogue: 'Artiste, album, label, référence catalogue...',
+    releases: 'Releases', masters: 'Masters', artistes: 'Artistes', labels: 'Labels',
+    tapeRechercher: 'Tapez pour rechercher dans le catalogue Discogs',
+    albumsArtistes: 'Albums, artistes, labels, pressages...',
+    adminTitle: '⚙️ TABLEAU DE BORD ADMIN',
+    utilisateurs: 'Utilisateurs', scansTotaux: 'Scans totaux',
+    messagesTchat: 'Messages tchat', prixEnregistres: 'Prix enregistrés',
+    utilisateursLabel: 'UTILISATEURS',
+    collectionneur: 'COLLECTIONNEUR', valeur: 'VALEUR', badge: 'BADGE',
+    votrePosLabel: 'VOTRE POSITION', surLabel: 'sur',
+    ajouteCollection: 'ajouté à ta collection',
+    supprimeCollection: 'supprimé de ta collection ✓',
+    supprimeOk: 'supprimé ✓',
+    ajouteWantlistOk: 'ajouté à ta Wantlist ✓',
+    retireeWantlist: 'Retiré de votre Wantlist',
+    ajouteeWantlist: 'Ajouté à votre Wantlist ✓',
+    connexionRequise: 'Connexion requise',
+    connectezVous: 'Connectez-vous pour gérer votre Wantlist',
+    messageNonEnvoye: 'Message non envoyé',
+    alerteCreee: '✓ Alerte créée',
+    alerteSupprimee: 'Alerte supprimée',
+    notifieEmail: 'Vous serez notifié par email quand la condition est remplie.',
+    pnlEnregistre: 'P&L enregistré',
+    cacheVide: '✓ Cache vidé — rechargement...',
+    pressageLie: '✓ Pressage lié',
+    pressageIdentifie: '✓ Pressage identifié et lié !',
+    pressageIdentOk: '✓ Pressage identifié !',
+    pressageNonTrouve: 'Pressage non trouvé sur Discogs',
+    aucunAutrePressage: 'Aucun autre pressage trouvé.',
+    aucunResultat: 'Aucun résultat',
+    aucunResultatTrouve: 'Aucun résultat trouvé.',
+    aucunGenre: 'Aucun genre correspondant trouvé.',
+    donneesNonDispo2: 'Données non disponibles.',
+    pasAssezDonnees: 'Pas encore assez de données historiques. Revenez dans quelques jours !',
+    generationEnCours: 'Génération en cours...',
+    rechercheEnCours: 'Recherche du pressage sur Discogs...',
+    rechercheCollec: 'Recherche du pressage dans votre collection...',
+    etatNonRens: 'État non renseigné',
+    nonRenseigne: 'Non renseigné',
+    analyseDonnees: 'Analyse basée sur les données Discogs',
+    ficheNonDispo: 'Fiche non disponible',
+    donneeInsuff: 'données insuffisantes',
+    collectionPrivee: '🔒 Collection privée',
+    collectionPublique: '🔓 Collection publique',
+    collectionPriveeMsg: 'Votre collection est maintenant privée',
+    collectionPubliqueMsg: 'Votre collection est maintenant publique',
+    viderCache: 'Vider tout le cache prix et recharger depuis Discogs ?\\n(Opération ~2 minutes)',
+    histReelPts: 'Historique réel ·',
+    histEstime: 'Estimé — se remplira automatiquement',
+    maxEstime: 'Max estimé',
+    medianEstime: 'Médian estimé',
+    aPossédes: '✓ Possédés',
+    aDecouvrir: 'À découvrir',
+    pressageIntrouvable: 'Pressage introuvable sur Discogs. Essaie de rechercher manuellement.',
+    deconnexion: 'Déconnexion',
+    modifier: '✏️ Modifier',
+    rechercheDiscogs2: '🔍 Recherche du pressage sur Discogs...',
+    storyRock: 'Le <strong>${genre}</strong> représente <strong>${pct}%</strong> de ta collection (${count} disques).',
+    storySuivi: 'Suivi par le <strong>${genre2}</strong> avec ${count} disques.',
+    storyDecennies: 'Ta collection couvre <strong>${n} décennies</strong>, des années ${first}s aux années ${last}s.',
+    storyPays: 'La majorité de tes pressages viennent des <strong>${pays}</strong> (${count} disques).',
+    storyAnnee: 'Ton année fétiche : <strong>${year}</strong> avec ${count} albums.',
+    storyPrecieux: 'Ton disque le plus précieux : <strong>${title}</strong> à <strong>${price}</strong>.',
+    storyMoyenne: 'Prix moyen de ta collection : <strong>${avg} €</strong> · Médiane : <strong>${median} €</strong>.',
+    storyLabel: 'Label le plus présent : <strong>${label}</strong> (${count} sorties).',
+    premiereConnexion: 'Première connexion',
+    raretes: '💎 Raretés',
+    storyTitle: 'VOTRE COLLECTION EN CHIFFRES',
+    incontournables: 'INCONTOURNABLES',
+    salons: 'SALONS', general: '💬 Général', rock: '🎸 Rock',
+    jazz: '🎷 Jazz', electronic: '🎹 Electronic', raretes: '💎 Raretés',
+    achatsVentes: '🛒 Achats/Ventes', premierMessage: 'Soyez le premier à écrire dans ce salon !',
+    ecrireMessage: 'Écrivez un message...', envoyer: 'Envoyer', enLigne: 'En ligne',
+    resetPrix: '⟳ Reset Prix', sync: 'Sync',
+    donnéesNonDispo: 'Données non disponibles', estime: 'Estimé',
+    reel: 'Réel', historiquReel: 'Historique réel',
+  },
+  en: {
+    heatmap: '🔥 Heatmap', catalogue: '🔍 Catalogue', communaute: '👥 Community',
+    wantlist: '❤️ Wantlist', retour: '← Back to collection', retourResultats: '← Back to results',
+    valeurTotale: 'Estimated total value', venteRapide: 'Quick sale', enHausse: 'Rising',
+    meilleurActif: 'Best asset', historiqueReel: 'Real history', moyenne: 'Average',
+    disquesTraces: 'tracked records', parDisque: '/ record', mois: '12 months',
+    prixPlusBas: 'Lowest price', valeurMarche: 'Market value', votreExemplaire: 'Your copy',
+    meilleureVente: '✦ Best sale', prixAchat: 'P&L — Purchase price', enregistrer: 'Save',
+    prixParEtat: 'Price by condition', ficheEditoriale: 'Editorial',
+    authenticityScore: 'Authenticity Score', pressingBattle: 'Pressing Battle',
+    scanner: '📷 Scan', lierCollection: '🔗 Add to my collection', ajouterWantlist: '❤️ Add to Wantlist',
+    rechercherDiscogs: '🔍 Search on Discogs', voirDiscogs: '↗ View on Discogs',
+    supprimer: '🗑 Delete', creerAlerte: '🔔 Create price alert',
+    scannerVinyle: 'Scan a vinyl', pochette: '🎵 Cover', macaron: '🔵 Label',
+    chargement: 'Loading', communauteOssature: 'OSSATURE Community',
+    collectionneurs: 'collectors', classementValeur: 'Ranked by collection value',
+    votrePosition: 'Your position', sur: 'of', disques: 'records',
+    rechercherCollection: '🔍 Search my collection...',
+    rechercherWantlist: '🔍 Search my wantlist...',
+    maWantlist: '❤️ My Wantlist', vinylesCherches: 'wanted records',
+    disques: 'records', sommePrixBas: 'Sum of lowest prices',
+    artisteAZ: 'Artist A→Z', prixDesc: 'Price ↓', prixAsc: 'Price ↑',
+    anneeDesc: 'Year ↓', perfDesc: 'Performance ↓', reelDabord: 'Real history first',
+    cercleAbsent: 'No dot = estimated data', dblClic: 'Double-click for full detail',
+    graphiquesInfo: 'Charts improve with each visit',
+    prixMedian: 'Median price', potentielSpec: 'Speculative potential',
+    infosPressage: 'PRESSING & MARKET INFO', dernieresVentes: 'RECENT SALES (ESTIMATED)',
+    contexte: 'Context', leSon: 'The Sound', aSavoir: 'Did you know',
+    tracklist: 'TRACKLIST', topGainers: '🚀 Top Gainers — Rising records',
+    enBaisse: '📉 Declining — Buying opportunities?',
+    potentielSpec2: '💎 Speculative potential — Gap between low and best price',
+    modePochette: 'Cover mode — album identification',
+    modeMacaron: 'Label mode — exact pressing identification',
+    identificationCours: 'Identifying...',
+    clickPhoto: 'Click to choose a photo<br>or drag and drop here',
+    prixAchatNonRens: 'Purchase price not set', prixPaye: 'Price paid (€)',
+    vous: 'you', affichage100: 'Showing first 100 of',
+    millionsReleases: '15 million releases · Search any vinyl',
+    rechercherCatalogue: 'Artist, album, label, catalog number...',
+    releases: 'Releases', masters: 'Masters', artistes: 'Artists', labels: 'Labels',
+    tapeRechercher: 'Type to search the Discogs catalog',
+    albumsArtistes: 'Albums, artists, labels, pressings...',
+    adminTitle: '⚙️ ADMIN DASHBOARD',
+    utilisateurs: 'Users', scansTotaux: 'Total scans',
+    messagesTchat: 'Chat messages', prixEnregistres: 'Saved prices',
+    utilisateursLabel: 'USERS',
+    collectionneur: 'COLLECTOR', valeur: 'VALUE', badge: 'BADGE',
+    votrePosLabel: 'YOUR POSITION', surLabel: 'of',
+    ajouteCollection: 'added to your collection',
+    supprimeCollection: 'removed from your collection ✓',
+    supprimeOk: 'deleted ✓',
+    ajouteWantlistOk: 'added to your Wantlist ✓',
+    retireeWantlist: 'Removed from your Wantlist',
+    ajouteeWantlist: 'Added to your Wantlist ✓',
+    connexionRequise: 'Login required',
+    connectezVous: 'Log in to manage your Wantlist',
+    messageNonEnvoye: 'Message not sent',
+    alerteCreee: '✓ Alert created',
+    alerteSupprimee: 'Alert deleted',
+    notifieEmail: 'You will be notified by email when the condition is met.',
+    pnlEnregistre: 'P&L saved',
+    cacheVide: '✓ Cache cleared — reloading...',
+    pressageLie: '✓ Pressing linked',
+    pressageIdentifie: '✓ Pressing identified and linked!',
+    pressageIdentOk: '✓ Pressing identified!',
+    pressageNonTrouve: 'Pressing not found on Discogs',
+    aucunAutrePressage: 'No other pressing found.',
+    aucunResultat: 'No results',
+    aucunResultatTrouve: 'No results found.',
+    aucunGenre: 'No matching genre found.',
+    donneesNonDispo2: 'Data unavailable.',
+    pasAssezDonnees: 'Not enough historical data yet. Come back in a few days!',
+    generationEnCours: 'Generating...',
+    rechercheEnCours: 'Searching for pressing on Discogs...',
+    rechercheCollec: 'Searching for pressing in your collection...',
+    etatNonRens: 'Condition not specified',
+    nonRenseigne: 'Not specified',
+    analyseDonnees: 'Analysis based on Discogs data',
+    ficheNonDispo: 'Editorial not available',
+    donneeInsuff: 'insufficient data',
+    collectionPrivee: '🔒 Private collection',
+    collectionPublique: '🔓 Public collection',
+    collectionPriveeMsg: 'Your collection is now private',
+    collectionPubliqueMsg: 'Your collection is now public',
+    viderCache: 'Clear all price cache and reload from Discogs?\\n(Operation ~2 minutes)',
+    histReelPts: 'Real history ·',
+    histEstime: 'Estimated — will fill automatically',
+    maxEstime: 'Max estimated',
+    medianEstime: 'Median estimated',
+    aPossédes: '✓ Owned',
+    aDecouvrir: 'To discover',
+    pressageIntrouvable: 'Pressing not found on Discogs. Try searching manually.',
+    deconnexion: 'Logout',
+    modifier: '✏️ Edit',
+    rechercheDiscogs2: '🔍 Searching on Discogs...',
+    storyRock: 'Your <strong>${genre}</strong> collection represents <strong>${pct}%</strong> of your records (${count}).',
+    storySuivi: 'Followed by <strong>${genre2}</strong> with ${count} records.',
+    storyDecennies: 'Your collection spans <strong>${n} decades</strong>, from the ${first}s to the ${last}s.',
+    storyPays: 'Most of your pressings come from <strong>${pays}</strong> (${count} records).',
+    storyAnnee: 'Your favourite year: <strong>${year}</strong> with ${count} albums.',
+    storyPrecieux: 'Your most valuable record: <strong>${title}</strong> at <strong>${price}</strong>.',
+    storyMoyenne: 'Average price: <strong>${avg} €</strong> · Median: <strong>${median} €</strong>.',
+    storyLabel: 'Most common label: <strong>${label}</strong> (${count} releases).',
+    premiereConnexion: 'First login',
+    raretes: '💎 Rarities',
+    storyTitle: 'YOUR COLLECTION IN NUMBERS',
+    incontournables: 'ESSENTIALS',
+    salons: 'CHANNELS', general: '💬 General', rock: '🎸 Rock',
+    jazz: '🎷 Jazz', electronic: '🎹 Electronic', raretes: '💎 Rarities',
+    achatsVentes: '🛒 Buy/Sell', premierMessage: 'Be the first to write in this channel!',
+    ecrireMessage: 'Write a message...', envoyer: 'Send', enLigne: 'Online',
+    resetPrix: '⟳ Reset Prices', sync: 'Sync',
+    donnéesNonDispo: 'Data unavailable', estime: 'Estimated',
+    reel: 'Real', historiquReel: 'Real history',
+  }
+};
+
+function t(key) { return T[LANG][key] || T['fr'][key] || key; }
+
+function setLang(lang) {
+  LANG = lang;
+  localStorage.setItem('ossature_lang', lang);
+  // Recharger la page pour appliquer la langue partout
+  location.reload();
+}
+
+function updateNavLang() {
+  const navLinks = document.getElementById('nav-links');
+  if(!navLinks) return;
+  navLinks.querySelectorAll('[data-tkey]').forEach(el => {
+    el.textContent = t(el.dataset.tkey);
+  });
+  // Mobile menu
+  const mobileMenu = document.getElementById('mobile-menu');
+  if(mobileMenu) mobileMenu.querySelectorAll('[data-tkey]').forEach(el => {
+    el.textContent = t(el.dataset.tkey);
+  });
+}
+
+// ── STORYTELLING ────────────────────────────────────────────
+function generateStory() {
+  if(!releases.length) return;
+  const panel = document.getElementById('story-panel');
+  const lines = document.getElementById('story-lines');
+  if(!panel || !lines) return;
+
+  const stories = [];
+
+  // 1. Genres dominants
+  const genres = {};
+  releases.forEach(r => (r.basic_information.genres||[]).forEach(g => { genres[g]=(genres[g]||0)+1; }));
+  const topGenre = Object.entries(genres).sort((a,b)=>b[1]-a[1])[0];
+  const topGenre2 = Object.entries(genres).sort((a,b)=>b[1]-a[1])[1];
+  if(topGenre) {
+    const pct = Math.round(topGenre[1]/releases.length*100);
+    stories.push({ icon:'🎵', text:`${LANG==='en'?'<strong>'+topGenre[0]+'</strong> represents <strong>'+pct+'%</strong> of your collection ('+topGenre[1]+' records).':'Le <strong>'+topGenre[0]+'</strong> représente <strong>'+pct+'%</strong> de ta collection ('+topGenre[1]+' disques).'}` });
+  }
+  if(topGenre2) {
+    stories.push({ icon:'🎶', text:LANG==='en'?`Followed by <strong>${topGenre2[0]}</strong> with ${topGenre2[1]} records.`:`Suivi par le <strong>${topGenre2[0]}</strong> avec ${topGenre2[1]} disques.` });
+  }
+
+  // 2. Décennies couvertes
+  const decades = new Set();
+  releases.forEach(r => {
+    const y = r.basic_information.year;
+    if(y && y > 1900) decades.add(Math.floor(y/10)*10);
+  });
+  const decadesSorted = [...decades].sort();
+  if(decadesSorted.length > 1) {
+    stories.push({ icon:'📅', text:LANG==='en'?`Your collection spans <strong>${decadesSorted.length} decades</strong>, from the ${decadesSorted[0]}s to the ${decadesSorted[decadesSorted.length-1]}s.`:`Ta collection couvre <strong>${decadesSorted.length} décennies</strong>, des années ${decadesSorted[0]}s aux années ${decadesSorted[decadesSorted.length-1]}s.` });
+  }
+
+  // 3. Pays
+  const countries = {};
+  releases.forEach(r => {
+    const c = r.basic_information.country;
+    if(c) countries[c]=(countries[c]||0)+1;
+  });
+  const topCountry = Object.entries(countries).sort((a,b)=>b[1]-a[1])[0];
+  if(topCountry) {
+    stories.push({ icon:'🌍', text:LANG==='en'?`Most of your pressings come from <strong>${topCountry[0]}</strong> (${topCountry[1]} records).`:`La majorité de tes pressages viennent des <strong>${topCountry[0]}</strong> (${topCountry[1]} disques).` });
+  }
+
+  // 4. Année la plus représentée
+  const years = {};
+  releases.forEach(r => { const y=r.basic_information.year; if(y&&y>1900) years[y]=(years[y]||0)+1; });
+  const topYear = Object.entries(years).sort((a,b)=>b[1]-a[1])[0];
+  if(topYear && topYear[1] > 1) {
+    stories.push({ icon:'🏆', text:LANG==='en'?`Your favourite year: <strong>${topYear[0]}</strong> with ${topYear[1]} albums.`:`Ton année fétiche : <strong>${topYear[0]}</strong> avec ${topYear[1]} albums.` });
+  }
+
+  // 5. Valeur moyenne vs médiane
+  const prices = releases.map(r=>r._price||0).filter(p=>p>0).sort((a,b)=>a-b);
+  if(prices.length > 5) {
+    const avg = prices.reduce((s,p)=>s+p,0)/prices.length;
+    const median = prices[Math.floor(prices.length/2)];
+    const most = releases.reduce((a,b)=>(a._price||0)>(b._price||0)?a:b, releases[0]);
+    stories.push({ icon:'💎', text:LANG==='en'?`Your most valuable record: <strong>${most.basic_information.title}</strong> at <strong>${fmt(most._price)}</strong>.`:`Ton disque le plus précieux : <strong>${most.basic_information.title}</strong> à <strong>${fmt(most._price)}</strong>.` });
+    stories.push({ icon:'📊', text:LANG==='en'?`Average price: <strong>${avg.toFixed(2)} €</strong> · Median: <strong>${median.toFixed(2)} €</strong>.`:`Prix moyen de ta collection : <strong>${avg.toFixed(2)} €</strong> · Médiane : <strong>${median.toFixed(2)} €</strong>.` });
+  }
+
+  // 6. Labels
+  const labels = {};
+  releases.forEach(r => { const l=r.basic_information.labels?.[0]?.name; if(l) labels[l]=(labels[l]||0)+1; });
+  const topLabel = Object.entries(labels).sort((a,b)=>b[1]-a[1])[0];
+  if(topLabel && topLabel[1] > 1) {
+    stories.push({ icon:'🏷️', text:LANG==='en'?`Most common label: <strong>${topLabel[0]}</strong> (${topLabel[1]} releases).`:`Label le plus présent : <strong>${topLabel[0]}</strong> (${topLabel[1]} sorties).` });
+  }
+
+  // Render
+  lines.innerHTML = stories.map(s => `
+    <div style="display:flex;align-items:flex-start;gap:10px;font-size:12px;color:var(--muted2);line-height:1.5">
+      <span style="flex-shrink:0;font-size:14px">${s.icon}</span>
+      <span>${s.text}</span>
+    </div>
+  `).join('');
+
+  panel.style.display = 'block';
+  const toggle2 = document.getElementById('story-toggle');
+  if(toggle2) toggle2.textContent = '▼';
+}
+
+
+function toggleEssentials() {
+  const lines = document.getElementById('essential-lines');
+  const toggle = document.getElementById('essential-toggle');
+  if(!lines || !toggle) return;
+  const isOpen = lines.style.display !== 'none';
+  lines.style.display = isOpen ? 'none' : 'block';
+  toggle.textContent = isOpen ? '▼' : '▲';
+  if(!isOpen && !lines.dataset.loaded) {
+    generateEssentials();
+    lines.dataset.loaded = '1';
+  }
+}
+
+const ESSENTIALS = {
+  'Rock': [
+    'Sgt. Pepper\'s Lonely Hearts Club Band','Abbey Road','Led Zeppelin IV','Dark Side of the Moon',
+    'Nevermind','Rumours','Born to Run','London Calling','Exile on Main St.','The Wall',
+    'Who\'s Next','Sticky Fingers','Paranoid','Master of Puppets','Appetite for Destruction',
+    'The Joshua Tree','OK Computer','Revolver','Let It Bleed','Electric Ladyland',
+    'Harvest','Blonde on Blonde','Highway 61 Revisited','Blood on the Tracks','Ziggy Stardust',
+    'Hunky Dory','Transformer','Raw Power','Fun House','The Velvet Underground & Nico',
+    'Are You Experienced','Axis: Bold as Love','Disraeli Gears','Fresh Cream','Truth',
+    'Led Zeppelin II','Physical Graffiti','Houses of the Holy','In Through the Out Door','Presence'
+  ],
+  'Jazz': [
+    'Kind of Blue','A Love Supreme','Giant Steps','Time Out','Mingus Ah Um',
+    'Blue Train','Saxophone Colossus','Waltz for Debby','Somethin\' Else','Head Hunters',
+    'Bitches Brew','In a Silent Way','Sketches of Spain','Milestones','Round About Midnight',
+    'The Black Saint and the Sinner Lady','Moanin\'','Speak No Evil','Maiden Voyage','Empyrean Isles',
+    'Out to Lunch','Point of Departure','Song for My Father','Horace Silver and the Jazz Messengers','The Sidewinder',
+    'Inventions and Dimensions','Doin\' Allright','Idle Moments','Solid','Ready for Freddie'
+  ],
+  'Electronic': [
+    'Autobahn','Trans-Europe Express','The Man-Machine','Computer World','Homework',
+    'Discovery','Random Access Memories','Selected Ambient Works','Music Has the Right to Children',
+    'Endtroducing...','The Prodigy - Music for the Jilted Generation','Leftism','Screamadelica',
+    'Orbital 2','Dummy','Protection','Maxinquaye','Portishead','Blue Lines','100th Window',
+    'Disintegration','Violator','Songs of Faith and Devotion','Ultra','Playing the Angel'
+  ],
+  'Soul': [
+    'What\'s Going On','Let\'s Get It On','Songs in the Key of Life','Innervisions','Talking Book',
+    'I Never Loved a Man the Way I Love You','Lady Soul','Young, Gifted and Black','Spirit in the Dark',
+    'Live at the Apollo','Papa\'s Got a Brand New Bag','It\'s a Man\'s Man\'s Man\'s World',
+    'There\'s a Riot Goin\' On','Stand!','Greatest Hits - Marvin Gaye','Here, My Dear','Midnight Love',
+    'Off the Wall','Thriller','Sign \'O\' the Times','Purple Rain','Around the World in a Day'
+  ],
+  'Funk': [
+    'Maggot Brain','America Eats Its Young','Let\'s Take It to the Stage','One Nation Under a Groove',
+    'Uncle Jam Wants You','Cosmic Slop','Hardcore Jollies','Free Your Mind','Motor Booty Affair',
+    'Standing on the Verge','Head Shop','Osmium','Funkentelechy Vs. the Placebo Syndrome'
+  ]
+};
+
+function generateEssentials() {
+  const container = document.getElementById('essential-lines');
+  if(!container) return;
+
+  const collectionTitles = releases.map(r =>
+    r.basic_information.title.toLowerCase().replace(/[^a-z0-9]/g,'')
+  );
+  const collectionGenres = {};
+  releases.forEach(r => {
+    (r.basic_information.genres||[]).forEach(g => { collectionGenres[g]=(collectionGenres[g]||0)+1; });
+  });
+
+  let html = '';
+  for(const [genre, albums] of Object.entries(ESSENTIALS)) {
+    if(!collectionGenres[genre] && genre !== 'Rock') continue;
+    const owned = albums.filter(a => {
+      const n = a.toLowerCase().replace(/[^a-z0-9]/g,'');
+      return collectionTitles.some(t => t.includes(n.substring(0,10)) || n.includes(t.substring(0,10)));
+    });
+    const missing = albums.filter(a => {
+      const n = a.toLowerCase().replace(/[^a-z0-9]/g,'');
+      return !collectionTitles.some(t => t.includes(n.substring(0,10)) || n.includes(t.substring(0,10)));
+    });
+    const pct = Math.round(owned.length / albums.length * 100);
+    const genreId = 'genre-' + genre.replace(/\s/g,'');
+
+    html += `
+      <div style="margin-bottom:10px;border:0.5px solid var(--border);border-radius:3px;overflow:hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;cursor:pointer;background:var(--surface2)" onclick="toggleGenre('${genreId}')">
+          <div style="display:flex;align-items:center;gap:12px;flex:1">
+            <span style="font-size:12px;color:var(--text);font-weight:500">${genre}</span>
+            <div style="flex:1;max-width:200px;height:4px;background:var(--border2);border-radius:2px">
+              <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--gold),var(--gold3));border-radius:2px"></div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:11px;color:var(--gold2)">${owned.length}/${albums.length}</span>
+            <span style="font-size:9px;color:var(--muted)" id="${genreId}-toggle">▼</span>
+          </div>
+        </div>
+        <div id="${genreId}" style="display:none;padding:12px 14px">
+          ${owned.length > 0 ? `
+            <div style="font-size:9px;color:var(--green);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">${t('aPossédes')} (${owned.length})</div>
+            <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px">
+              ${owned.map(a=>`<span style="font-size:10px;padding:2px 8px;border-radius:2px;background:rgba(61,158,114,.1);color:var(--green);border:0.5px solid rgba(61,158,114,.3)">${a}</span>`).join('')}
+            </div>` : ''}
+          ${missing.length > 0 ? `
+            <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">${t('aDecouvrir')} (${missing.length})</div>
+            <div style="display:flex;flex-wrap:wrap;gap:4px">
+              ${missing.map(a=>`<span style="font-size:10px;padding:2px 8px;border-radius:2px;background:var(--surface3);color:var(--muted2);border:0.5px solid var(--border2);cursor:pointer" onclick="searchInCatalog('${a.replace(/'/g,"\\'")}')" title="Rechercher dans le catalogue">${a}</span>`).join('')}
+            </div>` : '<div style="font-size:10px;color:var(--green)">✓ Collection complète !</div>'}
+        </div>
+      </div>`;
+  }
+  container.innerHTML = html || '<div style="font-size:11px;color:var(--muted)">'+t('aucunGenre')+'</div>';
+}
+
+function toggleGenre(id) {
+  const el = document.getElementById(id);
+  const toggle = document.getElementById(id+'-toggle');
+  if(!el || !toggle) return;
+  const isOpen = el.style.display !== 'none';
+  el.style.display = isOpen ? 'none' : 'block';
+  toggle.textContent = isOpen ? '▼' : '▲';
+}
+
+function searchInCatalog(title) {
+  showCatalog();
+  setTimeout(() => {
+    const input = document.getElementById('catalog-input');
+    if(input) { input.value = title; onCatalogSearch(title); }
+  }, 300);
+}
+
+
+function toggleStory() {
+  const lines = document.getElementById('story-lines');
+  const toggle = document.getElementById('story-toggle');
+  if(!lines || !toggle) return;
+  const isOpen = lines.style.display !== 'none';
+  lines.style.display = isOpen ? 'none' : 'flex';
+  toggle.textContent = isOpen ? '▼' : '▲';
+  localStorage.setItem('story_open', isOpen ? '0' : '1');
+}
+
+function initParallax() {
+  document.querySelectorAll('.card').forEach(card => {
+    const img = card.querySelector('img');
+    if(!img) return;
+    card.addEventListener('mousemove', e => {
+      const rect = card.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+      card.style.transform = `perspective(600px) rotateY(${x * 12}deg) rotateX(${-y * 12}deg) scale(1.03)`;
+      img.style.transform = `translateX(${x * 6}px) translateY(${y * 6}px)`;
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = 'perspective(600px) rotateY(0deg) rotateX(0deg) scale(1)';
+      img.style.transform = 'translateX(0) translateY(0)';
+    });
+  });
+}
+
 async function resetPriceCache() {
   const btn = document.getElementById('reset-cache-btn');
-  if(!confirm('Vider tout le cache prix et recharger depuis Discogs ?\n(Opération ~2 minutes)')) return;
+  if(!confirm(t('viderCache'))) return;
   if(btn) { btn.textContent = '⟳ En cours...'; btn.disabled = true; }
   try {
     // Supprimer tous les prix en cache pour cet utilisateur
@@ -645,7 +1424,7 @@ async function resetPriceCache() {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' }
     });
-    if(btn) btn.textContent = '✓ Cache vidé — rechargement...';
+    if(btn) btn.textContent = t('cacheVide');
     // Recharger la page pour tout refetcher depuis Discogs
     setTimeout(() => location.reload(), 1000);
   } catch(e) {
@@ -728,7 +1507,8 @@ async function fetchDetail(id){try{return await apiFetch(`${DISCOGS}/releases/${
 
 // ── CHART HELPERS ──
 function buildRealHistory(releaseId, currentPrice) {
-  const pts = historyMap[releaseId] || [];
+  // Les clés de historyMap sont des strings — convertir pour matcher
+  const pts = historyMap[String(releaseId)] || historyMap[releaseId] || [];
   if (pts.length >= 2) return { data: pts.map(p=>p.price), labels: pts.map(p=>new Date(p.recorded_at).toLocaleDateString('fr',{day:'2-digit',month:'short'})), isReal: true };
   // Pas assez de données réelles — on n'invente pas de prix
   const now = new Date();
@@ -846,17 +1626,25 @@ function renderPortfolio() {
   const r0 = releases[0];
   const h0 = r0._history;
 
+  const lowestTotal = releases.reduce((s,r) => s+(r._lowestPrice||r._price||0), 0);
   $('portfolio-view').innerHTML=`
     <div class="pbar">
-      <div class="pbar-main">
-        <div class="plabel">Valeur totale estimée</div>
-        <div class="pval" id="total-val-display">${Math.round(total)} €</div>
-        <div class="psub">${releases.length} disques · Discogs Marketplace</div>
+      <div class="pbar-main" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px">
+        <div>
+          <div class="plabel">${t('valeurTotale')}</div>
+          <div class="pval" id="total-val-display">${Math.round(total)} €</div>
+          <div class="psub">${releases.length} ${t('disques')} · Prix médian Discogs</div>
+        </div>
+        <div style="text-align:right">
+          <div class="plabel">${t('venteRapide')}</div>
+          <div class="pval" id="lowest-total-display" style="font-size:18px;color:var(--muted2)">${Math.round(lowestTotal)} €</div>
+          <div class="psub">${t('sommePrixBas')}</div>
+        </div>
       </div>
-      <div class="pbar-cell"><div class="plabel">En hausse</div><div class="pn up">${gains}/${releases.length}</div><div class="psub">12 mois</div></div>
-      <div class="pbar-cell"><div class="plabel">Meilleur actif</div><div class="pn" style="font-size:11px;color:var(--gold2)">${(best.basic_information.title||'').substring(0,18)}</div><div class="psub" style="color:var(--gold)">${fmt(best._price)}</div></div>
-      <div class="pbar-cell"><div class="plabel">Historique réel</div><div class="pn up">${realCount}</div><div class="psub">disques tracés</div></div>
-      <div class="pbar-cell"><div class="plabel">Moyenne</div><div class="pn">${fmt(total/releases.length)}</div><div class="psub">/ disque</div></div>
+      <div class="pbar-cell"><div class="plabel">${t('enHausse')}</div><div class="pn up">${gains}/${releases.length}</div><div class="psub">${t('mois')}</div></div>
+      <div class="pbar-cell"><div class="plabel">${t('meilleurActif')}</div><div class="pn" style="font-size:11px;color:var(--gold2)">${(best.basic_information.title||'').substring(0,18)}</div><div class="psub" style="color:var(--gold)">${fmt(best._price)}</div></div>
+      <div class="pbar-cell"><div class="plabel">${t('historiqueReel')}</div><div class="pn up">${realCount}</div><div class="psub">${t('disquesTraces')}</div></div>
+      <div class="pbar-cell"><div class="plabel">${t('moyenne')}</div><div class="pn">${fmt(total/releases.length)}</div><div class="psub">${t('parDisque')}</div></div>
       <div class="pbar-cell" id="pnl-cell" style="display:none">
         <div class="plabel">P&L Total</div>
         <div class="pn" id="pnl-total">—</div>
@@ -871,12 +1659,12 @@ function renderPortfolio() {
           <div>
             <div class="chart-name" id="chart-lbl">${r0.basic_information.title}</div>
             <div style="font-size:10px;color:var(--muted2)">${r0.basic_information.artists?.[0]?.name||''}</div>
-            <span class="history-badge ${h0.isReal?'hb-real':'hb-est'}" id="chart-badge">${h0.isReal?'Historique réel ●':'Estimé'}</span>
+            <span class="history-badge ${h0.isReal?'hb-real':'hb-est'}" id="chart-badge">${h0.isReal?t('historiqueReel')+' ●':t('estime')}</span>
           </div>
         </div>
         <div style="display:flex;align-items:center;gap:10px">
           <div><span class="chart-price" id="live-price">${fmt(r0._price)}</span><span class="chart-change" id="live-change"></span></div>
-          <div style="display:flex;align-items:center;gap:6px"><span class="chart-meta" style="color:${h0.isReal?'var(--green)':'var(--muted)'}">${h0.isReal?'● RÉEL':'◌ ESTIMÉ'}</span></div>
+          <div style="display:flex;align-items:center;gap:6px"><span class="chart-meta" style="color:${h0.isReal?'var(--green)':'var(--muted)'}">${h0.isReal?t('reel'):'◌ '+t('estime')}</span></div>
         </div>
       </div>
       <div style="height:148px"><canvas id="main-canvas"></canvas></div>
@@ -886,23 +1674,39 @@ function renderPortfolio() {
     <div class="toolbar">
       <div class="search-wrap">
         <span class="search-icon">⌕</span>
-        <input type="text" id="search-input" placeholder="Artiste, titre, label..." oninput="filterCards()">
+        <input type="text" id="search-input" placeholder="${t('rechercherCollection')}" oninput="filterCards()">
       </div>
       <select class="sort-sel" id="sort-sel" onchange="filterCards()">
-        <option value="artist">Artiste A→Z</option>
-        <option value="price-desc">Prix ↓</option>
-        <option value="price-asc">Prix ↑</option>
-        <option value="year-desc">Année ↓</option>
-        <option value="change-desc">Performance ↓</option>
-        <option value="real-first">Historique réel d'abord</option>
+        <option value="artist">${t('artisteAZ')}</option>
+        <option value="price-desc">${t('prixDesc')}</option>
+        <option value="price-asc">${t('prixAsc')}</option>
+        <option value="year-desc">${t('anneeDesc')}</option>
+        <option value="change-desc">${t('perfDesc')}</option>
+        <option value="real-first">${t('reelDabord')}</option>
       </select>
-      <span class="results-count" id="results-count">${releases.length} disques</span>
+      <span class="results-count" id="results-count">${releases.length} ${t('disques')}</span>
+    </div>
+
+    <div id="story-panel" style="background:var(--surface);border:0.5px solid var(--border2);border-radius:3px;padding:10px 20px;margin-bottom:8px;display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:8px;border-bottom:0.5px solid var(--border);cursor:pointer" onclick="toggleStory()">
+        <span style="font-size:9px;color:var(--gold);text-transform:uppercase;letter-spacing:.12em">✦ ${t('storyTitle')}</span>
+        <span id="story-toggle" style="font-size:11px;color:var(--muted2)">▼</span>
+      </div>
+      <div id="story-lines" style="display:none;flex-direction:column;gap:8px"></div>
+    </div>
+
+    <div id="essential-panel" style="background:var(--surface);border:0.5px solid var(--border2);border-radius:3px;padding:10px 20px;margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="toggleEssentials()">
+        <span style="font-size:9px;color:var(--gold);text-transform:uppercase;letter-spacing:.12em">✦ ${t('incontournables')}</span>
+        <span id="essential-toggle" style="font-size:11px;color:var(--muted2)">▼</span>
+      </div>
+      <div id="essential-lines" style="display:none;margin-top:12px;padding-top:8px;border-top:0.5px solid var(--border)"></div>
     </div>
 
     <div class="cards-grid" id="cards-grid"></div>
     <div class="footnote">
-      <span style="color:var(--green)">●</span> Historique réel Supabase &nbsp;·&nbsp; Cercle absent = données estimées &nbsp;·&nbsp; Double-cliquez pour le détail complet<br>
-      Les graphiques deviennent réels au fil des ouvertures de l'app
+      <span style="color:var(--green)">●</span> ${t('historiqueReel')} Supabase &nbsp;·&nbsp; ${t('cercleAbsent')} &nbsp;·&nbsp; ${t('dblClic')}<br>
+      ${t('graphiquesInfo')}
     </div>
   `;
 
@@ -910,9 +1714,14 @@ function renderPortfolio() {
   renderCards(filtered);
   $('sync-lbl').textContent='Sync '+new Date().toLocaleTimeString('fr',{hour:'2-digit',minute:'2-digit'});
   const userLbl = document.getElementById('user-lbl');
-  if(userLbl && USER) userLbl.textContent = USER;
+  if(userLbl && USER) {
+    // Afficher un nom d'affichage personnalisé si défini
+    const DISPLAY_NAMES = { 'estebanveis': 'LeBaronnetNoir' };
+    userLbl.textContent = DISPLAY_NAMES[USER] || USER;
+  }
   setTimeout(checkAlerts, 3000);
   loadPurchasePrices();
+  setTimeout(generateStory, 200);
   
   // Calculer le total depuis nos prix + Discogs en fallback
   fetchCollectionValue().then(val => {
@@ -933,6 +1742,11 @@ function renderPortfolio() {
       const min = minimum ? parseDiscogs(minimum) : 0;
       const max = maximum ? parseDiscogs(maximum) : 0;
       el.title = 'Faible: ' + min.toFixed(0) + '€ · Médiane: ' + total.toFixed(0) + '€ · Élevée: ' + max.toFixed(0) + '€';
+    const lowestEl = document.getElementById('lowest-total-display');
+    if(lowestEl) {
+      const lt = releases.reduce((s,r) => s+(r._lowestPrice||r._price||0), 0);
+      lowestEl.textContent = Math.round(lt) + ' €';
+    }
       el.style.cursor = 'help';
     }
   }).catch(e => {
@@ -945,7 +1759,7 @@ function renderPortfolio() {
     }
     console.log('Collection value error:', e);
   });
-  $('count-lbl').textContent=releases.length+' vinyles';
+  $('count-lbl').textContent=releases.length+' '+t('vinylesCherches');
   setTimeout(()=>selectRelease(r0),80);
 }
 
@@ -957,7 +1771,7 @@ function selectRelease(r) {
   startLiveChart('main-canvas',h.data,h.labels,color,r._price,h.isReal);
   const lbl=$('chart-lbl'); if(lbl) lbl.textContent=r.basic_information.title;
   const badge=$('chart-badge');
-  if(badge){badge.textContent=h.isReal?'Historique réel ●':'Estimé';badge.className='history-badge '+(h.isReal?'hb-real':'hb-est');}
+  if(badge){badge.textContent=h.isReal?t('historiqueReel')+' ●':t('estime');badge.className='history-badge '+(h.isReal?'hb-real':'hb-est');}
   const prEl=$('live-price'); if(prEl) prEl.textContent=fmt(r._price);
   const chEl=$('live-change');
   if(chEl){chEl.textContent=(up?'▲ +':'▼ ')+Math.abs(ch||0)+'%';chEl.className='chart-change '+(up?'up':'down');}
@@ -992,6 +1806,7 @@ function filterCards(){
   });
   $('results-count').textContent=filtered.length+' disques';
   renderCards(filtered);
+  setTimeout(initParallax, 150);
 }
 
 function renderCards(list){
@@ -1000,7 +1815,7 @@ function renderCards(list){
     const h=r._history?.data||[], ch=pct(h[0],r._price), up=ch&&parseFloat(ch)>=0;
     const idx=releases.indexOf(r);
     return`<div class="card" data-idx="${idx}" onclick="cardClick(this,${idx})">
-      ${r._history?.isReal?'<div class="card-real-dot" title="Historique réel"></div>':''}
+      ${r._history?.isReal?`<div class="card-real-dot" title="${t('historiqueReel')}"></div>`:``}
       ${coverImg(r,'card-img')}
       <div class="card-body">
         <div class="card-title">${r.basic_information.title}</div>
@@ -1021,6 +1836,7 @@ function renderCards(list){
       </div>
     </div>`;
   }).join('');
+  setTimeout(initParallax, 100);
 }
 
 let clickTimer=null;
@@ -1040,7 +1856,7 @@ async function showDetail(idx){
   $('portfolio-view').style.display='none';
   $('detail-view').style.display='block';
   $('back-btn').style.display='';
-  $('detail-view').innerHTML=`<div class="loading"><div class="loading-title">${r.basic_information.title}</div>Chargement<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></div>`;
+  $('detail-view').innerHTML=`<div class="loading"><div class="loading-title">${r.basic_information.title}</div><svg class="vinyl-loader" width="60" height="60" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#111"/><circle cx="50" cy="50" r="42" fill="none" stroke="#1a1a1a" stroke-width="2"/><circle cx="50" cy="50" r="34" fill="none" stroke="#222" stroke-width="1.5"/><circle cx="50" cy="50" r="26" fill="none" stroke="#1a1a1a" stroke-width="1"/><circle cx="50" cy="50" r="18" fill="#c8a84b"/><circle cx="50" cy="50" r="13" fill="#b8943a"/><text x="50" y="48" text-anchor="middle" font-family="Georgia,serif" font-size="6" font-weight="700" fill="#1a0f00" letter-spacing="0.5">OSS</text><text x="50" y="55" text-anchor="middle" font-family="Georgia,serif" font-size="4.5" fill="#2a1a00">ATURE</text><circle cx="50" cy="50" r="2.5" fill="#111"/></svg><br><span class="vinyl-dot"></span><span class="vinyl-dot"></span><span class="vinyl-dot"></span></div>`;
 
   const [detail,market]=await Promise.all([fetchDetail(r.id),fetchMarketStats(r.id)]);
   const priceSugg=null; // price_suggestions supprimé — prix vendeur biaisés
@@ -1057,7 +1873,7 @@ async function showDetail(idx){
     'Fair (F)': 'Good Plus (G+)',
     'Poor (P)': 'Good Plus (G+)'
   };
-  r._condition = mediaCondition || 'Non renseigné';
+  r._condition = mediaCondition || t('nonRenseigne');
   if(mediaCondition && priceSugg && priceSugg[conditionMap[mediaCondition]]) {
     r._conditionPrice = priceSugg[conditionMap[mediaCondition]].median;
   }
@@ -1103,7 +1919,7 @@ async function showDetail(idx){
   }
 
   $('detail-view').innerHTML=`
-    <div class="detail-back-btn" onclick="showPortfolio()">← Retour à la collection</div>
+    <div class="detail-back-btn" onclick="showPortfolio()">${t('retour')}</div>
     <div class="d-hero">
       <div>${detailCover(r)}</div>
       <div class="d-info">
@@ -1119,37 +1935,37 @@ async function showDetail(idx){
         </div>
         <div class="d-stats" style="grid-template-columns:repeat(4,1fr)">
           <div class="dstat">
-            <div class="dstat-label">Prix le plus bas</div>
+            <div class="dstat-label">${t('prixPlusBas')}</div>
             <div class="dstat-val" style="color:var(--green)">${fmt(lowestPrice)}</div>
-            <div class="dstat-sub">Vente rapide</div>
+            <div class="dstat-sub">${t('venteRapide')}</div>
           </div>
           <div class="dstat">
-            <div class="dstat-label">Valeur de marché</div>
+            <div class="dstat-label">${t('valeurMarche')}</div>
             <div class="dstat-val" style="color:var(--gold2)">${fmt(medianPrice)}</div>
-            <div class="dstat-sub">Prix médian</div>
+            <div class="dstat-sub">${t('prixMedian')}</div>
           </div>
           <div class="dstat">
-            <div class="dstat-label">Votre exemplaire</div>
-            <div class="dstat-val" style="color:var(--gold3)">${r._conditionPrice?fmt(r._conditionPrice):fmt(medianPrice)}</div>
-            <div class="dstat-sub">${r._condition||'État non renseigné'}</div>
+            <div class="dstat-label">${t('votreExemplaire')}</div>
+            <div class="dstat-val" style="color:var(--gold3)">${fmt(lowestPrice)}</div>
+            <div class="dstat-sub">${r._condition||t('etatNonRens')}</div>
           </div>
           <div class="dstat" style="border:0.5px solid rgba(184,150,46,.3)">
-            <div class="dstat-label" style="color:var(--gold)">✦ Meilleure vente</div>
+            <div class="dstat-label" style="color:var(--gold)">${t('meilleureVente')}</div>
             <div class="dstat-val" style="color:var(--gold3)">${fmt(r._highestPrice||highestPrice)}</div>
-            <div class="dstat-sub" style="color:var(--gold)">Potentiel spéculatif</div>
+            <div class="dstat-sub" style="color:var(--gold)">${t('potentielSpec')}</div>
           </div>
         </div>
         <div style="display:flex;gap:8px;align-items:center;margin-top:6px;flex-wrap:wrap">
-          <button class="alert-btn" onclick="openAlertModal(${r.id}, '${info.title.replace(/'/g,"\'")}')">🔔 Créer une alerte prix</button>
+          <button class="alert-btn" onclick="openAlertModal(${r.id}, this.dataset.title)" data-title="${info.title.replace(/"/g,'&quot;')}">🔔 Créer une alerte prix</button>
           <button class="alert-btn" onclick="window.open('https://www.discogs.com/release/${r.id}','_blank')" style="color:var(--muted2)">↗ Voir sur Discogs</button>
-          <button class="alert-btn" onclick="deleteFromCollection(${r.id}, '${info.title.replace(/'/g,"\'")}')" style="color:var(--red);border-color:var(--red)">🗑 Supprimer</button>
+          <button class="alert-btn" onclick="deleteFromCollection(${r.id}, this.dataset.title)" data-title="${info.title.replace(/"/g,'&quot;')}" style="color:var(--red);border-color:var(--red)">🗑 Supprimer</button>
         </div>
         <div id="pnl-section-${r.id}" style="margin-top:10px;background:var(--surface3);border-radius:3px;padding:10px 12px">
           <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">💰 P&L — Prix d'achat</div>
           <div id="pnl-display-${r.id}">
-            <div style="font-size:11px;color:var(--muted2);margin-bottom:6px">Prix d'achat non renseigné</div>
+            <div style="font-size:11px;color:var(--muted2);margin-bottom:6px">${t('prixAchatNonRens')}</div>
             <div style="display:flex;gap:6px">
-              <input type="number" id="pnl-input-${r.id}" placeholder="Prix payé (€)" step="0.5" min="0"
+              <input type="number" id="pnl-input-${r.id}" placeholder="${t('prixPaye')}" step="0.5" min="0"
                 style="flex:1;background:var(--surface);border:0.5px solid var(--border2);border-radius:2px;padding:6px 8px;color:var(--text);font-family:var(--mono);font-size:11px;outline:none">
               <button onclick="savePurchasePrice(${r.id})" style="font-size:10px;color:#000;background:linear-gradient(135deg,var(--gold) 0%,var(--gold3) 100%);border:none;padding:6px 12px;border-radius:2px;font-family:var(--mono);cursor:pointer">Enregistrer</button>
             </div>
@@ -1161,7 +1977,7 @@ async function showDetail(idx){
     <div class="panel" style="margin-bottom:12px">
       <div class="panel-h">PRIX PAR ÉTAT DE CONSERVATION</div>
       <div class="cond-table">
-        <div class="cond-head"><span>État</span><span>Minimum</span><span>Médian</span><span>Maximum</span></div>
+        <div class="cond-head"><span>État</span><span>Min</span><span>Médian</span><span>Max</span></div>
         ${condRows}
       </div>
       <div style="font-size:9px;color:var(--muted);margin-top:7px">M=Mint · NM=Near Mint · VG+=Very Good Plus · VG=Very Good · G+=Good Plus${market?.median_price?.value?' · Discogs Marketplace Stats':' · Données non disponibles'}</div>
@@ -1173,12 +1989,12 @@ async function showDetail(idx){
           <div>${detailCover(r).replace('d-cover','chart-cover').replace('d-cover-vinyl','chart-cover-vinyl')}</div>
           <div>
             <div class="chart-name">${info.title}</div>
-            <span class="history-badge ${h.isReal?'hb-real':'hb-est'}">${h.isReal?`Historique réel · ${h.data.length} points ●`:'Estimé — se remplira automatiquement'}</span>
+            <span class="history-badge ${h.isReal?'hb-real':'hb-est'}">${h.isReal?`${t('histReelPts')} ${h.data.length} points ●`:t('histEstime')}</span>
           </div>
         </div>
         <div style="display:flex;align-items:center;gap:10px">
           <div><span class="chart-price" id="live-price-d">${fmt(price)}</span><span class="chart-change ${up?'up':'down'}" id="live-change-d">${up?'▲ +':'▼ '}${Math.abs(ch)||0}%</span></div>
-          <div style="display:flex;align-items:center;gap:6px"><span class="chart-meta" style="color:${h.isReal?'var(--green)':'var(--muted)'}">${h.isReal?'● RÉEL':'◌ ESTIMÉ'}</span></div>
+          <div style="display:flex;align-items:center;gap:6px"><span class="chart-meta" style="color:${h.isReal?'var(--green)':'var(--muted)'}">${h.isReal?t('reel'):'◌ '+t('estime')}</span></div>
         </div>
       </div>
       <div style="height:180px"><canvas id="detail-canvas"></canvas></div>
@@ -1187,18 +2003,18 @@ async function showDetail(idx){
 
     <div class="d-grid">
       <div class="panel">
-        <div class="panel-h">INFOS PRESSAGE & MARCHÉ</div>
-        ${[['Label',label],['Référence',catno],['Pays',country],['Sorti',released],['Genre',genres],['Style',styles]]
+        <div class="panel-h">${t('infosPressage')}</div>
+        ${[[['Label',label],['Ref',catno],['Country',country],['Released',released],['Genre',genres],['Style',styles]]]
           .map(([k,v])=>`<div class="mrow"><span class="mkey">${k}</span><span class="mval">${v}</span></div>`).join('')}
       </div>
       <div class="panel">
-        <div class="panel-h">DERNIÈRES VENTES (ESTIMÉES)</div>
+        <div class="panel-h">${t('dernieresVentes')}</div>
         ${sales.map(s=>`<div class="srow"><span class="s-date">${s.date.toLocaleDateString('fr',{day:'2-digit',month:'short',year:'2-digit'})}</span><span class="s-cond">${s.cond}</span><span class="s-price">${fmt(s.price)}</span></div>`).join('')}
       </div>
     </div>
 
     ${tracklist.length?`<div class="panel" style="margin-top:10px">
-      <div class="panel-h">TRACKLIST <span style="font-size:9px;color:var(--muted);font-weight:normal">· ▶ preview 30s</span></div>
+      <div class="panel-h">${t('tracklist')} <span style="font-size:9px;color:var(--muted);font-weight:normal">· ▶ preview 30s</span></div>
       ${tracklist.map((t,ti)=>`<div class="trow" style="align-items:center;gap:8px">
         <button class="track-play-btn" id="play-${ti}" data-artist="${encodeURIComponent(info.artists?.[0]?.name||'')}" data-track="${encodeURIComponent(t.title)}" data-album="${encodeURIComponent(info.title||'')}" data-idx="${ti}" onclick="playPreviewEncoded(this)" title="Ecouter 30s">▶</button>
         <span class="t-pos">${t.position||'—'}</span>
@@ -1213,7 +2029,7 @@ async function showDetail(idx){
         <span style="font-size:9px;color:var(--gold);letter-spacing:.04em">✦ IA</span>
       </div>
       <div id="editorial-content">
-        <div style="padding:12px 0;color:var(--muted);font-size:11px">Génération en cours...</div>
+        <div style="padding:12px 0;color:var(--muted);font-size:11px">${t('generationEnCours')}</div>
       </div>
     </div>
 
@@ -1230,14 +2046,14 @@ async function showDetail(idx){
     <div class="panel" style="margin-top:10px">
       <div class="panel-h" style="display:flex;justify-content:space-between;align-items:center">
         <span>⚔️ PRESSING BATTLE</span>
-        <span style="font-size:9px;color:var(--muted)">Tous les pressages comparés</span>
+        <span style="font-size:9px;color:var(--muted)">${t('pressingBattle').replace('⚔️ ','')}</span>
       </div>
       <div id="battle-content">
         <div class="battle-loading"><div class="live-dot" style="background:var(--gold)"></div>Chargement des pressages...</div>
       </div>
     </div>
 
-    <div class="footnote">Données Discogs API · ${h.isReal?`Historique réel (${h.data.length} points enregistrés)`:'Historique estimé — s\'enrichit à chaque ouverture'} · Graphique live</div>
+    <div class="footnote">Discogs API · ${h.isReal?`${t('historiqueReel')} (${h.data.length} pts)`:t('histEstime')} · Live</div>
   `;
 
   // Generate editorial in background
@@ -1282,7 +2098,7 @@ async function showDetail(idx){
           </div>
           <div>
             <div class="auth-verdict" style="color:${color}">${verdict}</div>
-            <div class="auth-conseil">${data.ai?.conseil || data.ai?.detail || 'Analyse basée sur les données Discogs'}</div>
+            <div class="auth-conseil">${data.ai?.conseil || data.ai?.detail || t('analyseDonnees')}</div>
           </div>
         </div>
         <div class="auth-flags">
@@ -1309,13 +2125,13 @@ async function showDetail(idx){
         if(!el) return;
         const versions = data.versions || [];
         if(!versions.length) {
-          el.innerHTML = '<div style="color:var(--muted);font-size:11px;padding:8px 0">Aucun autre pressage trouvé.</div>';
+          el.innerHTML = '<div style="color:var(--muted);font-size:11px;padding:8px 0">'+t('aucunAutrePressage')+'</div>';
           return;
         }
         const winner = versions[0];
         const premiumCountries = ['Japan','UK','Germany','US'];
         el.innerHTML = `
-          <div style="font-size:11px;color:var(--muted2);margin-bottom:10px">${data.total} pressages vinyle recensés · Top ${versions.length} par score collectionneur</div>
+          <div style="font-size:11px;color:var(--muted2);margin-bottom:10px">${data.total} ${LANG==='en'?'vinyl pressings · Top':'pressages vinyle recensés · Top'} ${versions.length} ${LANG==='en'?'by collector score':'par score collectionneur'}</div>
           <div class="battle-grid">
             ${versions.map((v,i) => `
               <div class="battle-card${i===0?' winner':''}">
@@ -1331,7 +2147,7 @@ async function showDetail(idx){
                     </div>
                     <div class="battle-score">
                       <div class="battle-score-val" style="color:${v.rarity_score>=75?'var(--green)':v.rarity_score>=50?'var(--gold)':'var(--muted2)'}">${v.rarity_score}</div>
-                      <div class="battle-score-lbl">Rareté</div>
+                      <div class="battle-score-lbl">Rarity</div>
                     </div>
                   </div>
                   <div class="battle-price">${v.median_price?v.median_price.toFixed(2)+' €':'—'}</div>
@@ -1347,30 +2163,32 @@ async function showDetail(idx){
         `;
       }).catch(() => {
         const el = document.getElementById('battle-content');
-        if(el) el.innerHTML = '<div style="color:var(--muted);font-size:11px;padding:8px 0">Données non disponibles.</div>';
+        if(el) el.innerHTML = '<div style="color:var(--muted);font-size:11px;padding:8px 0">'+t('donneesNonDispo2')+'</div>';
       });
   }
 
   setTimeout(()=>{
     startLiveChart('detail-canvas',h.data,h.labels,up?'#3d9e72':'#b85565',price,h.isReal,180);
-    // Override live display for detail page
-    if(liveTimer){clearInterval(liveTimer);}
-    let cp=price;
-    liveTimer=setInterval(()=>{
-      if(!activeChart) return;
-      const vol=cp*0.008, delta=(Math.random()-.48)*vol;
-      cp=Math.max(0.5,+(cp+delta).toFixed(2));
-      activeChart.data.labels.push(new Date().toLocaleTimeString('fr',{hour:'2-digit',minute:'2-digit',second:'2-digit'}));
-      activeChart.data.datasets[0].data.push(cp);
-      if(activeChart.data.labels.length>80){activeChart.data.labels.shift();activeChart.data.datasets[0].data.shift();}
-      const d=activeChart.data.datasets[0].data;
-      const nc=d[d.length-1]>=d[d.length-2]?'#3d9e72':'#b85565';
-      activeChart.data.datasets[0].borderColor=nc;
-      const prEl=$('live-price-d'),chEl=$('live-change-d');
-      if(prEl) prEl.textContent=cp.toFixed(2)+' €';
-      if(chEl){const c=((cp-price)/price*100).toFixed(2);chEl.textContent=(c>=0?'▲ +':'▼ ')+c+'%';chEl.className='chart-change '+(c>=0?'up':'down');}
-      activeChart.update('none');
-    },1200);
+    // Timer live uniquement si PAS d'historique réel
+    if(liveTimer){clearInterval(liveTimer); liveTimer=null;}
+    if(!h.isReal) {
+      let cp=price;
+      liveTimer=setInterval(()=>{
+        if(!activeChart) return;
+        const vol=cp*0.008, delta=(Math.random()-.48)*vol;
+        cp=Math.max(0.5,+(cp+delta).toFixed(2));
+        activeChart.data.labels.push(new Date().toLocaleTimeString('fr',{hour:'2-digit',minute:'2-digit',second:'2-digit'}));
+        activeChart.data.datasets[0].data.push(cp);
+        if(activeChart.data.labels.length>80){activeChart.data.labels.shift();activeChart.data.datasets[0].data.shift();}
+        const d=activeChart.data.datasets[0].data;
+        const nc=d[d.length-1]>=d[d.length-2]?'#3d9e72':'#b85565';
+        activeChart.data.datasets[0].borderColor=nc;
+        const prEl=$('live-price-d'),chEl=$('live-change-d');
+        if(prEl) prEl.textContent=cp.toFixed(2)+' €';
+        if(chEl){const c=((cp-price)/price*100).toFixed(2);chEl.textContent=(c>=0?'▲ +':'▼ ')+c+'%';chEl.className='chart-change '+(c>=0?'up':'down');}
+        activeChart.update('none');
+      },1200);
+    }
   },80);
 }
 
@@ -1423,7 +2241,7 @@ Réponds UNIQUEMENT en JSON valide avec exactement cette structure (pas de markd
 
 function renderEditorial(ed, container) {
   if (!ed || ed.error || (!ed.intro && !ed.contexte)) {
-    container.innerHTML = `<div style="color:var(--muted);font-size:11px;padding:10px 0">Fiche non disponible — ${ed?.error||'données insuffisantes'}</div>`;
+    container.innerHTML = `<div style="color:var(--muted);font-size:11px;padding:10px 0">${t('ficheNonDispo')} — ${ed?.error||t('donneeInsuff')}</div>`;
     return;
   }
   const safe = s => (s||'').toString();
@@ -1431,9 +2249,9 @@ function renderEditorial(ed, container) {
     <div class="editorial-body">
       ${safe(ed.intro)?`<p>${safe(ed.intro)}</p>`:''}
       ${safe(ed.citation)?`<div class="editorial-quote">${safe(ed.citation)}</div>`:''}
-      ${safe(ed.contexte)?`<h3>Contexte</h3><p>${safe(ed.contexte)}</p>`:''}
-      ${safe(ed.son)?`<h3>Le Son</h3><p>${safe(ed.son)}</p>`:''}
-      ${safe(ed.anecdote)?`<h3>À savoir</h3><p>${safe(ed.anecdote)}</p>`:''}
+      ${safe(ed.contexte)?`<h3>${t('contexte')}</h3><p>${safe(ed.contexte)}</p>`:''}
+      ${safe(ed.son)?`<h3>${t('leSon')}</h3><p>${safe(ed.son)}</p>`:''}
+      ${safe(ed.anecdote)?`<h3>${t('aSavoir')}</h3><p>${safe(ed.anecdote)}</p>`:''}
       ${ed.mots_cles?.length?`<div class="editorial-tags">${ed.mots_cles.map(m=>`<span class="editorial-tag">${m}</span>`).join('')}</div>`:''}
     </div>
   `;
@@ -1462,7 +2280,7 @@ function showCatalog() {
       <div style="display:flex;gap:10px;align-items:center;margin-bottom:20px">
         <div class="catalog-search-wrap" style="flex:1;margin-bottom:0">
           <span class="catalog-search-icon">🎵</span>
-          <input type="text" class="catalog-search-input" id="catalog-input" placeholder="Artiste, album, label, référence catalogue..." autofocus oninput="onCatalogSearch(this.value)">
+          <input type="text" class="catalog-search-input" id="catalog-input" placeholder="${t('rechercherCatalogue')}" autofocus oninput="onCatalogSearch(this.value)">
         </div>
         <button onclick="openScan()" style="font-size:11px;color:var(--gold2);cursor:pointer;border:0.5px solid var(--gold);padding:14px 16px;border-radius:3px;background:rgba(184,150,46,.08);font-family:var(--mono);white-space:nowrap;transition:all .2s" onmouseover="this.style.background='rgba(184,150,46,.15)'" onmouseout="this.style.background='rgba(184,150,46,.08)'">📷 Scanner</button>
       </div>
@@ -1509,12 +2327,12 @@ async function searchCatalog(q) {
     const items = data.results || [];
 
     if(!items.length) {
-      results.innerHTML = '<div class="catalog-empty"><div class="catalog-empty-icon">🔍</div><div>Aucun résultat pour "' + q + '"</div></div>';
+      results.innerHTML = '<div class="catalog-empty"><div class="catalog-empty-icon">🔍</div><div>'+(LANG==="en"?'No results for "':'Aucun résultat pour "') + q + '"</div></div>';
       return;
     }
 
     results.innerHTML = `
-      <div style="font-size:10px;color:var(--muted);margin-bottom:12px">${data.pagination?.items?.toLocaleString('fr') || items.length} résultats</div>
+      <div style="font-size:10px;color:var(--muted);margin-bottom:12px">${data.pagination?.items?.toLocaleString(LANG==='en'?'en':'fr') || items.length} ${LANG==='en'?'results':'résultats'}</div>
       <div class="catalog-grid">
         ${items.map(item => {
           const img = item.cover_image || item.thumb || '';
@@ -1546,7 +2364,7 @@ async function searchCatalog(q) {
 
 async function openCatalogRelease(id, type) {
   const results = $('catalog-results');
-  results.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:20px 0;text-align:center">Chargement<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></div>';
+  results.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:20px 0;text-align:center"><svg class="vinyl-loader" width="60" height="60" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#111"/><circle cx="50" cy="50" r="42" fill="none" stroke="#1a1a1a" stroke-width="2"/><circle cx="50" cy="50" r="34" fill="none" stroke="#222" stroke-width="1.5"/><circle cx="50" cy="50" r="26" fill="none" stroke="#1a1a1a" stroke-width="1"/><circle cx="50" cy="50" r="18" fill="#c8a84b"/><circle cx="50" cy="50" r="13" fill="#b8943a"/><text x="50" y="48" text-anchor="middle" font-family="Georgia,serif" font-size="6" font-weight="700" fill="#1a0f00" letter-spacing="0.5">OSS</text><text x="50" y="55" text-anchor="middle" font-family="Georgia,serif" font-size="4.5" fill="#2a1a00">ATURE</text><circle cx="50" cy="50" r="2.5" fill="#111"/></svg><br><span class="vinyl-dot"></span><span class="vinyl-dot"></span><span class="vinyl-dot"></span></div>';
 
   try {
     const endpoint = type === 'master' ? `masters/${id}` : type === 'artist' ? `artists/${id}` : `releases/${id}`;
@@ -1598,11 +2416,11 @@ async function openCatalogRelease(id, type) {
             </div>
             <div style="background:var(--surface3);border-radius:2px;padding:10px;text-align:center">
               <div style="font-family:var(--serif);font-size:18px;font-weight:600;color:var(--gold2)">${_med?(_isEst?'~ ':'')+_med.toFixed(2)+' €':'—'}</div>
-              <div style="font-size:9px;color:var(--muted);text-transform:uppercase;margin-top:2px">${_isEst?'Médian estimé':'Médian · '+_pts+' pts · '+(_calcP?.users||0)+' users'}</div>
+              <div style="font-size:9px;color:var(--muted);text-transform:uppercase;margin-top:2px">${_isEst?t('medianEstime'):'Médian · '+_pts+' pts · '+(_calcP?.users||0)+' users'}</div>
             </div>
             <div style="background:var(--surface3);border-radius:2px;padding:10px;text-align:center">
               <div style="font-family:var(--serif);font-size:18px;font-weight:600;color:var(--gold3)">${_high?(_isEst?'~ ':'')+_high.toFixed(2)+' €':'—'}</div>
-              <div style="font-size:9px;color:var(--muted);text-transform:uppercase;margin-top:2px">${_isEst?'Max estimé':'Max · '+_pts+' pts'}</div>
+              <div style="font-size:9px;color:var(--muted);text-transform:uppercase;margin-top:2px">${_isEst?t('maxEstime'):'Max · '+_pts+' pts'}</div>
             </div>
           </div>`;
       } catch(e) {}
@@ -1734,7 +2552,7 @@ async function loadCatalogHistory(releaseId) {
 
 async function searchCatalogVersions(masterId) {
   const results = $('catalog-results');
-  results.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:20px 0;text-align:center">Chargement des pressages<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></div>';
+  results.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:20px 0;text-align:center"><svg class="vinyl-loader" width="60" height="60" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#111"/><circle cx="50" cy="50" r="42" fill="none" stroke="#1a1a1a" stroke-width="2"/><circle cx="50" cy="50" r="34" fill="none" stroke="#222" stroke-width="1.5"/><circle cx="50" cy="50" r="26" fill="none" stroke="#1a1a1a" stroke-width="1"/><circle cx="50" cy="50" r="18" fill="#c8a84b"/><circle cx="50" cy="50" r="13" fill="#b8943a"/><text x="50" y="48" text-anchor="middle" font-family="Georgia,serif" font-size="6" font-weight="700" fill="#1a0f00" letter-spacing="0.5">OSS</text><text x="50" y="55" text-anchor="middle" font-family="Georgia,serif" font-size="4.5" fill="#2a1a00">ATURE</text><circle cx="50" cy="50" r="2.5" fill="#111"/></svg><br><span class="vinyl-dot"></span><span class="vinyl-dot"></span><span class="vinyl-dot"></span></div>';
   try {
     const data = await apiFetch(`${DISCOGS}/masters/${masterId}/versions?per_page=20&sort=released`);
     const versions = (data.versions||[]).filter(v=>v.format?.includes('Vinyl')||v.format?.includes('LP'));
@@ -1760,35 +2578,58 @@ async function searchCatalogVersions(masterId) {
 
 // ── WANTLIST ──
 async function toggleWantlist(releaseId) {
-  if(!USER) { showNotif('Connexion requise', 'Connectez-vous pour gérer votre Wantlist', 'info'); return; }
+  if(!USER) { showNotif(t('connexionRequise'), t('connectezVous'), 'info'); return; }
   const btn = document.getElementById('wantlist-add-btn');
   if(btn) { btn.textContent = '⏳ En cours...'; btn.disabled = true; }
 
   try {
-    // Check if already in wantlist
-    const check = await apiFetch(`${DISCOGS}/users/${USER}/wants/${releaseId}`);
+    // Vérifier si déjà dans la wantlist
+    const checkRes = await fetch(`/api/discogs?path=${encodeURIComponent('users/'+USER+'/wants/'+releaseId)}`);
+    const check = await checkRes.json();
     
-    if(check && check.id) {
-      // Already in wantlist — remove it
-      await fetch(`/api/discogs?path=${encodeURIComponent('users/'+USER+'/wants/'+releaseId)}&method=DELETE`);
-      if(btn) { btn.textContent = '❤️ Ajouter à la Wantlist'; btn.style.color='var(--red)'; btn.disabled = false; }
-      showNotif('Wantlist', 'Retiré de votre Wantlist', 'info');
-    }
-  } catch(e) {
-    // Not in wantlist — add it
-    try {
+    if(checkRes.ok && check && check.id) {
+      // Déjà dans la wantlist — retirer
+      await fetch('/api/discogs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path: `users/${USER}/wants/${releaseId}`, method: 'DELETE' })
+      });
+      if(btn) { btn.textContent = '❤️ Ajouter à la Wantlist'; btn.style.color='var(--red)'; btn.style.borderColor='var(--red)'; btn.disabled = false; }
+      showNotif('Wantlist', t('retireeWantlist'), 'info');
+    } else {
+      // Pas dans la wantlist — ajouter
       await fetch('/api/discogs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ path: `users/${USER}/wants/${releaseId}`, method: 'PUT' })
       });
       if(btn) { btn.textContent = '💔 Retirer de la Wantlist'; btn.style.color='var(--green)'; btn.style.borderColor='var(--green)'; btn.disabled = false; }
-      showNotif('Wantlist', 'Ajouté à votre Wantlist !', 'success');
-    } catch(e2) {
-      if(btn) { btn.textContent = '❤️ Ajouter à la Wantlist'; btn.disabled = false; }
-      showNotif('Erreur', 'Impossible de modifier la Wantlist — token OAuth requis', 'error');
+      showNotif('Wantlist', t('ajouteeWantlist'), 'success');
     }
+  } catch(e) {
+    if(btn) { btn.textContent = '❤️ Ajouter à la Wantlist'; btn.disabled = false; }
+    showNotif('Erreur', e.message, 'error');
   }
+}
+
+async function openWantlistRelease(id) {
+  // Ouvrir le catalogue en mode detail directement
+  $('portfolio-view').style.display = 'none';
+  $('detail-view').style.display = 'none';
+  $('heatmap-view').style.display = 'none';
+  $('wantlist-view').style.display = 'none';
+  $('catalog-view').style.display = 'block';
+  $('back-btn').style.display = '';
+
+  $('catalog-view').innerHTML = `
+    <div>
+      <div style="margin-bottom:16px">
+        <button onclick="showWantlist()" style="font-size:11px;color:var(--muted2);cursor:pointer;border:0.5px solid var(--border2);padding:6px 14px;border-radius:2px;background:var(--surface);font-family:var(--mono)">← Retour à la Wantlist</button>
+      </div>
+      <div id="catalog-results"><div style="text-align:center;padding:40px;color:var(--muted)"><svg class="vinyl-loader" width="60" height="60" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#111"/><circle cx="50" cy="50" r="18" fill="#c8a84b"/><circle cx="50" cy="50" r="5" fill="#111"/></svg></div></div>
+    </div>
+  `;
+  await openCatalogRelease(id, 'release');
 }
 
 async function showWantlist() {
@@ -1807,7 +2648,7 @@ async function showWantlist() {
       </div>
       <div style="font-family:var(--serif);font-size:26px;font-weight:300;color:var(--gold3);font-style:italic;margin-bottom:4px">❤️ Ma Wantlist</div>
       <div style="font-size:12px;color:var(--muted2);margin-bottom:20px">Chargement de votre liste de souhaits Discogs...</div>
-      <div class="loading">Chargement<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></div>
+      <div class="loading"><svg class="vinyl-loader" width="60" height="60" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#111"/><circle cx="50" cy="50" r="42" fill="none" stroke="#1a1a1a" stroke-width="2"/><circle cx="50" cy="50" r="34" fill="none" stroke="#222" stroke-width="1.5"/><circle cx="50" cy="50" r="26" fill="none" stroke="#1a1a1a" stroke-width="1"/><circle cx="50" cy="50" r="18" fill="#c8a84b"/><circle cx="50" cy="50" r="13" fill="#b8943a"/><text x="50" y="48" text-anchor="middle" font-family="Georgia,serif" font-size="6" font-weight="700" fill="#1a0f00" letter-spacing="0.5">OSS</text><text x="50" y="55" text-anchor="middle" font-family="Georgia,serif" font-size="4.5" fill="#2a1a00">ATURE</text><circle cx="50" cy="50" r="2.5" fill="#111"/></svg><br><span class="vinyl-dot"></span><span class="vinyl-dot"></span><span class="vinyl-dot"></span></div>
     </div>
   `;
 
@@ -1827,8 +2668,16 @@ function renderWantlist(wants, total) {
         <button onclick="showPortfolio()" style="font-size:11px;color:var(--muted2);cursor:pointer;border:0.5px solid var(--border2);padding:6px 14px;border-radius:2px;background:var(--surface);font-family:var(--mono)">← Retour à la collection</button>
       </div>
       <div style="font-family:var(--serif);font-size:26px;font-weight:300;color:var(--gold3);font-style:italic;margin-bottom:4px">❤️ Ma Wantlist</div>
-      <div style="font-size:12px;color:var(--muted2);margin-bottom:20px">${total} vinyles recherchés · Discogs Wantlist</div>
+      <div style="font-size:12px;color:var(--muted2);margin-bottom:16px">${total} ${t('vinylesCherches')} · Discogs Wantlist</div>
 
+      <!-- Barre de recherche wantlist -->
+      <div style="margin-bottom:16px;position:relative">
+        <input id="wantlist-search" type="text" placeholder="🔍 Rechercher dans ma wantlist..." 
+          oninput="filterWantlist(this.value)"
+          style="width:100%;padding:8px 14px;background:var(--surface);border:0.5px solid var(--border2);border-radius:3px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none;box-sizing:border-box"
+          onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border2)'">
+      </div>
+      <div id="wantlist-grid">
       ${wants.length === 0 ? `
         <div style="text-align:center;padding:60px;color:var(--muted)">
           <div style="font-size:32px;margin-bottom:12px">🎵</div>
@@ -1843,7 +2692,7 @@ function renderWantlist(wants, total) {
             const artist = info.artists?.[0]?.name || '';
             const label = info.labels?.[0]?.name || '';
             return `
-              <div style="background:var(--surface);border:0.5px solid var(--border2);border-radius:4px;overflow:hidden;cursor:pointer;transition:border-color .2s" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border2)'" onclick="showCatalogRelease(${info.id})">
+              <div style="background:var(--surface);border:0.5px solid var(--border2);border-radius:4px;overflow:hidden;cursor:pointer;transition:border-color .2s" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border2)'" onclick="openWantlistRelease(${info.id})">
                 ${cover 
                   ? `<img src="${cover}" style="width:100%;aspect-ratio:1;object-fit:cover">`
                   : `<div style="width:100%;aspect-ratio:1;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:28px">❤️</div>`
@@ -1864,9 +2713,110 @@ function renderWantlist(wants, total) {
       `}
     </div>
   `;
+  window._wantlistData = wants;
+}
+
+function filterWantlist(query) {
+  if(!window._wantlistData) return;
+  const q = query.toLowerCase().trim();
+  const filtered = q ? window._wantlistData.filter(w => {
+    const info = w.basic_information;
+    return (info.title||'').toLowerCase().includes(q) ||
+           (info.artists?.[0]?.name||'').toLowerCase().includes(q) ||
+           (info.labels?.[0]?.name||'').toLowerCase().includes(q);
+  }) : window._wantlistData;
+  const grid = document.getElementById('wantlist-grid');
+  if(!grid) return;
+  if(filtered.length === 0) {
+    grid.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);font-size:12px">'+t('aucunResultat')+'</div>';
+    return;
+  }
+  grid.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px">' +
+    filtered.map(w => {
+      const info = w.basic_information;
+      const cover = info.cover_image && !info.cover_image.includes('spacer') ? info.cover_image : '';
+      const artist = info.artists?.[0]?.name || '';
+      const label = info.labels?.[0]?.name || '';
+      return '<div style="background:var(--surface);border:0.5px solid var(--border2);border-radius:4px;overflow:hidden;cursor:pointer" onclick="openWantlistRelease(' + info.id + ')">' +
+        (cover ? '<img src="' + cover + '" style="width:100%;aspect-ratio:1;object-fit:cover">' : '<div style="width:100%;aspect-ratio:1;background:var(--surface3);display:flex;align-items:center;justify-content:center">❤️</div>') +
+        '<div style="padding:10px"><div style="font-size:11px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + info.title + '</div>' +
+        '<div style="font-size:10px;color:var(--muted2)">' + artist + '</div>' +
+        '<div style="font-size:9px;color:var(--muted);margin-top:4px">' + (info.year||'—') + ' · ' + label + '</div></div></div>';
+    }).join('') + '</div>';
 }
 
 // ── COMMUNITY ──
+async function viewUserAlbum(releaseId, title, artist, username) {
+  // Ouvrir le detail de l'album comme pour sa propre collection
+  // mais en mode lecture seule (pas de bouton Supprimer)
+  const view = document.getElementById('community-view');
+  view.innerHTML = `<div style="padding:20px;text-align:center"><svg class="vinyl-loader" width="60" height="60" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#111"/><circle cx="50" cy="50" r="34" fill="none" stroke="#1a1a1a" stroke-width="2"/><circle cx="50" cy="50" r="18" fill="#c8a84b"/><circle cx="50" cy="50" r="5" fill="#111"/></svg><div style="font-size:12px;color:var(--muted);margin-top:12px">Chargement...</div></div>`;
+
+  try {
+    const [detail, market] = await Promise.all([
+      apiFetch(`${DISCOGS}/releases/${releaseId}`),
+      fetchMarketStats(releaseId)
+    ]);
+
+    const info = detail || {};
+    const cover = info.images?.[0]?.uri || '';
+    const lowestPrice = market?.lowest_price?.value || null;
+    const genres = (info.genres||[]).join(', ');
+    const styles = (info.styles||[]).join(', ');
+    const tracklist = (info.tracklist||[]);
+    const _estPrices = lowestPrice ? estimatePrices(lowestPrice, info.genres||[]) : null;
+    const medianPrice = _estPrices?.median || null;
+    const highestPrice = _estPrices?.high || null;
+
+    view.innerHTML = `
+      <div>
+        <div style="margin-bottom:16px;display:flex;gap:10px;align-items:center">
+          <button onclick="viewUserCollection('${username}')" style="font-size:11px;color:var(--muted2);cursor:pointer;border:0.5px solid var(--border2);padding:6px 14px;border-radius:2px;background:var(--surface);font-family:var(--mono)">← Collection de ${username}</button>
+        </div>
+
+        <div style="display:grid;grid-template-columns:200px 1fr;gap:24px;margin-bottom:24px">
+          ${cover ? `<img src="${cover}" style="width:100%;border-radius:4px">` : `<div style="width:100%;aspect-ratio:1;background:var(--surface3);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:40px">🎵</div>`}
+          <div>
+            <div style="font-family:var(--serif);font-size:24px;font-weight:300;color:var(--gold3);font-style:italic;margin-bottom:4px">${title}</div>
+            <div style="font-size:13px;color:var(--muted2);margin-bottom:12px">${artist}</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px">
+              ${info.formats?.[0]?.name ? `<span style="font-size:9px;border:0.5px solid var(--border2);padding:2px 6px;border-radius:2px;color:var(--muted)">${info.formats[0].name}</span>` : ''}
+              ${info.year ? `<span style="font-size:9px;border:0.5px solid var(--border2);padding:2px 6px;border-radius:2px;color:var(--muted)">${info.year}</span>` : ''}
+              ${genres ? `<span style="font-size:9px;border:0.5px solid var(--border2);padding:2px 6px;border-radius:2px;color:var(--muted)">${genres}</span>` : ''}
+              ${info.country ? `<span style="font-size:9px;border:0.5px solid var(--border2);padding:2px 6px;border-radius:2px;color:var(--muted)">${info.country}</span>` : ''}
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px">
+              <div style="background:var(--surface3);border-radius:2px;padding:10px;text-align:center">
+                <div style="font-family:var(--serif);font-size:18px;font-weight:600;color:var(--green)">${lowestPrice ? lowestPrice.toFixed(2)+' €' : '—'}</div>
+                <div style="font-size:9px;color:var(--muted);text-transform:uppercase;margin-top:2px">Plus bas</div>
+              </div>
+              <div style="background:var(--surface3);border-radius:2px;padding:10px;text-align:center">
+                <div style="font-family:var(--serif);font-size:18px;font-weight:600;color:var(--gold2)">${medianPrice ? '~ '+medianPrice.toFixed(2)+' €' : '—'}</div>
+                <div style="font-size:9px;color:var(--muted);text-transform:uppercase;margin-top:2px">${t('medianEstime')}</div>
+              </div>
+              <div style="background:var(--surface3);border-radius:2px;padding:10px;text-align:center">
+                <div style="font-family:var(--serif);font-size:18px;font-weight:600;color:var(--gold3)">${highestPrice ? '~ '+highestPrice.toFixed(2)+' €' : '—'}</div>
+                <div style="font-size:9px;color:var(--muted);text-transform:uppercase;margin-top:2px">${t('maxEstime')}</div>
+              </div>
+            </div>
+
+            <a href="https://www.discogs.com/release/${releaseId}" target="_blank" style="font-size:11px;color:var(--muted2);text-decoration:none;border:0.5px solid var(--border2);padding:6px 12px;border-radius:2px;font-family:var(--mono)">↗ Voir sur Discogs</a>
+          </div>
+        </div>
+
+        ${tracklist.length > 0 ? `
+        <div style="margin-top:20px">
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:12px">Tracklist</div>
+          ${tracklist.map(t => `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:0.5px solid var(--border);font-size:11px"><span style="color:var(--muted2)">${t.position||''}</span><span style="color:var(--text);flex:1;padding:0 12px">${t.title||''}</span><span style="color:var(--muted)">${t.duration||''}</span></div>`).join('')}
+        </div>` : ''}
+      </div>
+    `;
+  } catch(e) {
+    view.innerHTML += `<div style="color:var(--red);font-size:12px;padding:20px">Erreur: ${e.message}</div>`;
+  }
+}
+
 async function viewUserCollection(username) {
   const view = document.getElementById('community-view');
   if(!view) return;
@@ -1883,12 +2833,21 @@ async function viewUserCollection(username) {
   `;
 
   try {
-    // Get public collection data from Supabase
-    const profile = await fetch('/api/social?action=profile&username=' + username).then(r => r.json());
+    // Get public collection data + prices from Supabase
+    const [profile, pricesData] = await Promise.all([
+      fetch('/api/social?action=profile&username=' + username).then(r => r.json()),
+      sbFetch(`/price_history_daily?discogs_user=eq.${username}&select=release_id,price,lowest_price,recorded_at&order=recorded_at.desc&limit=500`)
+    ]);
     
     // Fetch collection from Discogs
     const collData = await apiFetch(`${DISCOGS}/users/${username}/collection/folders/0/releases?per_page=100&sort=artist`);
     const items = collData?.releases || [];
+    
+    // Indexer les prix par release_id
+    const priceMap = {};
+    (pricesData||[]).forEach(p => {
+      if(!priceMap[p.release_id]) priceMap[p.release_id] = p.price || p.lowest_price;
+    });
     
     const badge = profile?.badge || getBadge(items.length, profile?.total_value || 0);
     const totalVal = profile?.total_value || 0;
@@ -1910,20 +2869,23 @@ async function viewUserCollection(username) {
           </div>
         </div>
 
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px">
-          ${items.slice(0,50).map(r => {
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px">
+          ${items.map(r => {
             const info = r.basic_information;
             const cover = info.cover_image && !info.cover_image.includes('spacer') ? info.cover_image : '';
-            return `<div style="background:var(--surface);border:0.5px solid var(--border2);border-radius:4px;overflow:hidden">
+            const artist = info.artists?.[0]?.name||'';
+            return `<div style="background:var(--surface);border:0.5px solid var(--border2);border-radius:4px;overflow:hidden;cursor:pointer;transition:border-color .2s" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border2)'" onclick="viewUserAlbum(${info.id}, this.dataset.t, this.dataset.a, this.dataset.u)" data-t="${info.title.replace(/"/g,'&quot;')}" data-a="${artist.replace(/"/g,'&quot;')}" data-u="${username}">
               ${cover ? `<img src="${cover}" style="width:100%;aspect-ratio:1;object-fit:cover">` : `<div style="width:100%;aspect-ratio:1;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:24px">🎵</div>`}
-              <div style="padding:8px">
-                <div style="font-size:10px;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${info.title}</div>
-                <div style="font-size:9px;color:var(--muted);margin-top:2px">${info.artists?.[0]?.name||''}</div>
-                <div style="font-size:9px;color:var(--muted)">${info.year||''}</div>
+              <div style="padding:10px">
+                <div style="font-size:11px;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${info.title}</div>
+                <div style="font-size:10px;color:var(--muted2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${artist}</div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
+                  <span style="font-size:9px;color:var(--muted)">${info.year||''}</span>
+                  <span style="font-size:11px;color:var(--gold2);font-family:var(--serif)">${priceMap[info.id] ? priceMap[info.id].toFixed(2)+' €' : '—'}</span>
+                </div>
               </div>
             </div>`;
           }).join('')}
-          ${items.length > 50 ? `<div style="grid-column:1/-1;text-align:center;font-size:11px;color:var(--muted);padding:12px">+${items.length-50} disques supplémentaires</div>` : ''}
         </div>
       </div>
     `;
@@ -1947,7 +2909,7 @@ async function showCommunity() {
       </div>
       <div style="font-family:var(--serif);font-size:26px;font-weight:300;color:var(--gold3);font-style:italic;margin-bottom:4px">👥 Communauté OSSATURE</div>
       <div style="font-size:12px;color:var(--muted2);margin-bottom:24px">Collections publiques · Classement · Badges</div>
-      <div class="loading">Chargement<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></div>
+      <div class="loading"><svg class="vinyl-loader" width="60" height="60" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#111"/><circle cx="50" cy="50" r="42" fill="none" stroke="#1a1a1a" stroke-width="2"/><circle cx="50" cy="50" r="34" fill="none" stroke="#222" stroke-width="1.5"/><circle cx="50" cy="50" r="26" fill="none" stroke="#1a1a1a" stroke-width="1"/><circle cx="50" cy="50" r="18" fill="#c8a84b"/><circle cx="50" cy="50" r="13" fill="#b8943a"/><text x="50" y="48" text-anchor="middle" font-family="Georgia,serif" font-size="6" font-weight="700" fill="#1a0f00" letter-spacing="0.5">OSS</text><text x="50" y="55" text-anchor="middle" font-family="Georgia,serif" font-size="4.5" fill="#2a1a00">ATURE</text><circle cx="50" cy="50" r="2.5" fill="#111"/></svg><br><span class="vinyl-dot"></span><span class="vinyl-dot"></span><span class="vinyl-dot"></span></div>
     </div>
   `;
 
@@ -1970,10 +2932,31 @@ async function showCommunity() {
   try {
     const data = await fetch('/api/social?action=leaderboard').then(r => r.json());
     renderCommunity(data);
-  setTimeout(openChat, 100);
+    setTimeout(loadAdminStats, 500);
+    setTimeout(openChat, 100);
   } catch(e) {
     $('community-view').innerHTML += `<div style="color:var(--red)">Erreur: ${e.message}</div>`;
   }
+}
+
+async function loadAdminStats() {
+  if(USER !== 'estebanveis') return;
+  try {
+    const [scans, messages, prices] = await Promise.all([
+      sbFetch('/pressing_scans?select=id&limit=1000'),
+      sbFetch('/chat_messages?select=id&limit=1000'),
+      sbFetch('/price_history?select=id&limit=1&order=id.desc')
+    ]);
+    const scansEl = document.getElementById('admin-scans');
+    const msgsEl = document.getElementById('admin-messages');
+    const pricesEl = document.getElementById('admin-prices');
+    if(scansEl) scansEl.textContent = (scans||[]).length;
+    if(msgsEl) msgsEl.textContent = (messages||[]).length;
+    if(pricesEl) {
+      const count = await sbFetch('/price_history?select=id');
+      pricesEl.textContent = (count||[]).length;
+    }
+  } catch(e) {}
 }
 
 function getBadge(count, value) {
@@ -1988,13 +2971,59 @@ function getBadge(count, value) {
 
 function renderCommunity(leaderboard) {
   const myRank = leaderboard.findIndex(u => u.discogs_username === USER) + 1;
-  const myBadge = USER ? getBadge(releases.length, releases.reduce((s,r) => s+(r._price||0), 0)) : '';
+  const myTotal = releases.reduce((s,r) => s+(r._price||0), 0);
+  const myBadge = USER ? getBadge(releases.length, myTotal) : '';
+  // Mettre à jour les données de l'utilisateur connecté avec nos prix en temps réel
+  const myEntry = leaderboard.find(u => u.discogs_username === USER);
+  if(myEntry) {
+    myEntry.total_value = myTotal;
+    myEntry.total_releases = releases.length;
+    myEntry.badge = myBadge;
+  }
+
+  // Panneau admin — visible uniquement pour estebanveis
+  const adminHtml = USER === 'estebanveis' ? `
+    <div style="background:rgba(184,150,46,.05);border:0.5px solid var(--gold);border-radius:3px;padding:14px 18px;margin-bottom:20px">
+      <div style="font-size:9px;color:var(--gold);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px;padding-bottom:8px;border-bottom:0.5px solid rgba(184,150,46,.2)">⚙️ TABLEAU DE BORD ADMIN</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px">
+        <div style="background:var(--surface);border-radius:3px;padding:10px;text-align:center">
+          <div style="font-family:var(--serif);font-size:22px;color:var(--gold2)">${leaderboard.length}</div>
+          <div style="font-size:9px;color:var(--muted);margin-top:2px">${t('utilisateurs')}</div>
+        </div>
+        <div style="background:var(--surface);border-radius:3px;padding:10px;text-align:center">
+          <div style="font-family:var(--serif);font-size:22px;color:var(--gold2)" id="admin-scans">—</div>
+          <div style="font-size:9px;color:var(--muted);margin-top:2px">${t('scansTotaux')}</div>
+        </div>
+        <div style="background:var(--surface);border-radius:3px;padding:10px;text-align:center">
+          <div style="font-family:var(--serif);font-size:22px;color:var(--gold2)" id="admin-messages">—</div>
+          <div style="font-size:9px;color:var(--muted);margin-top:2px">${t('messagesTchat')}</div>
+        </div>
+        <div style="background:var(--surface);border-radius:3px;padding:10px;text-align:center">
+          <div style="font-family:var(--serif);font-size:22px;color:var(--gold2)" id="admin-prices">—</div>
+          <div style="font-size:9px;color:var(--muted);margin-top:2px">${t('prixEnregistres')}</div>
+        </div>
+      </div>
+      <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">${t('utilisateurs')}</div>
+      <div style="display:flex;flex-direction:column;gap:5px">
+        ${leaderboard.map(u => `
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--surface);border-radius:2px">
+            <span style="font-size:11px;color:${u.discogs_username===USER?'var(--gold2)':'var(--text)'}">${u.discogs_username==='estebanveis'?'LeBaronnetNoir':u.discogs_username}</span>
+            <div style="display:flex;gap:12px;align-items:center">
+              <span style="font-size:10px;color:var(--muted2)">${u.total_releases||0} disques</span>
+              <span style="font-size:10px;color:var(--gold2)">${u.total_value?u.total_value.toFixed(0)+' €':'—'}</span>
+              <span style="font-size:9px;color:var(--muted)">${u.badge?.split(' ')[0]||''}</span>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>` : '';
 
   $('community-view').innerHTML = `
     <div>
       <div style="margin-bottom:16px">
         <button onclick="showPortfolio()" style="font-size:11px;color:var(--muted2);cursor:pointer;border:0.5px solid var(--border2);padding:6px 14px;border-radius:2px;background:var(--surface);font-family:var(--mono)" onmouseover="this.style.color='var(--gold2)'" onmouseout="this.style.color='var(--muted2)'">← Retour à la collection</button>
       </div>
+
+      ${adminHtml}
 
       <div style="font-family:var(--serif);font-size:26px;font-weight:300;color:var(--gold3);font-style:italic;margin-bottom:4px">👥 Communauté OSSATURE</div>
       <div style="font-size:12px;color:var(--muted2);margin-bottom:24px">${leaderboard.length} collectionneurs · Classement par valeur de collection</div>
@@ -2019,7 +3048,7 @@ function renderCommunity(leaderboard) {
           <div style="display:grid;grid-template-columns:40px 1fr 100px 100px 80px;gap:0;padding:12px 16px;border-bottom:0.5px solid var(--border);align-items:center;background:${u.discogs_username===USER?'rgba(184,150,46,.04)':'transparent'};transition:background .15s" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background='${u.discogs_username===USER?'rgba(184,150,46,.04)':'transparent'}'" onclick="viewUserCollection('${u.discogs_username}')" style2="cursor:pointer">
             <span style="font-family:var(--serif);font-size:16px;color:${i===0?'var(--gold2)':i===1?'#c0c0c0':i===2?'#cd7f32':'var(--muted)'};font-weight:600">${i===0?'👑':i+1}</span>
             <div>
-              <div style="font-size:12px;color:${u.discogs_username===USER?'var(--gold2)':'var(--text)'};font-weight:${u.discogs_username===USER?'500':'400'}">${u.discogs_username}${u.discogs_username===USER?' (vous)':''}</div>
+              <div style="font-size:12px;color:${u.discogs_username===USER?'var(--gold2)':'var(--text)'};font-weight:${u.discogs_username===USER?'500':'400'}">${u.discogs_username==='estebanveis'?'LeBaronnetNoir':u.discogs_username}${u.discogs_username===USER?' ('+t('vous')+')':''}</div>
               <div style="font-size:10px;color:var(--muted)">${u.top_genre||'—'}</div>
             </div>
             <span style="font-family:var(--serif);font-size:14px;color:var(--gold2);text-align:right">${u.total_value?u.total_value.toFixed(0)+' €':'—'}</span>
@@ -2031,7 +3060,7 @@ function renderCommunity(leaderboard) {
       <div style="margin-top:24px">
         <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px">Badges OSSATURE</div>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
-          ${[['🌱','Newcomer','Première connexion'],['🎶','Collector','50+ disques'],['🎵','Vinyl Enthusiast','100+ disques'],['📚','Vinyl Archivist','200+ disques'],['🥈','Silver Collector','1000€+'],['🥇','Gold Collector','2000€+'],['💎','Diamond Collector','5000€+']].map(([icon,name,desc]) => `
+          ${[['🌱','Newcomer',t('premiereConnexion')],['🎶','Collector','50+ disques'],['🎵','Vinyl Enthusiast','100+ disques'],['📚','Vinyl Archivist','200+ disques'],['🥈','Silver Collector','1000€+'],['🥇','Gold Collector','2000€+'],['💎','Diamond Collector','5000€+']].map(([icon,name,desc]) => `
             <div style="background:var(--surface);border:0.5px solid var(--border2);border-radius:3px;padding:10px 14px;text-align:center;min-width:100px">
               <div style="font-size:20px;margin-bottom:4px">${icon}</div>
               <div style="font-size:10px;color:var(--text);font-weight:500">${name}</div>
@@ -2049,12 +3078,12 @@ let chatPollTimer = null;
 let lastMessageTime = null;
 
 const chatRooms = [
-  { id: 'general', label: '💬 Général' },
-  { id: 'rock', label: '🎸 Rock' },
-  { id: 'jazz', label: '🎷 Jazz' },
-  { id: 'electronic', label: '🎹 Electronic' },
-  { id: 'rare', label: '💎 Raretés' },
-  { id: 'achats', label: '🛒 Achats/Ventes' }
+  { id: 'general', label: t('general') },
+  { id: 'rock', label: t('rock') },
+  { id: 'jazz', label: t('jazz') },
+  { id: 'electronic', label: t('electronic') },
+  { id: 'rare', label: t('raretes') },
+  { id: 'achats', label: t('achatsVentes') }
 ];
 
 function openChat() {
@@ -2069,20 +3098,20 @@ function openChat() {
     <div style="font-family:var(--serif);font-size:20px;font-weight:300;color:var(--gold3);font-style:italic;margin-bottom:16px">💬 Tchat Communautaire</div>
     <div class="chat-wrap">
       <div class="chat-rooms">
-        <div class="chat-room-title">Salons</div>
+        <div class="chat-room-title">${t('salons')}</div>
         ${chatRooms.map(r => `<button class="chat-room-btn${r.id===currentRoom?' active':''}" onclick="switchRoom('${r.id}')">${r.label}</button>`).join('')}
       </div>
       <div class="chat-main">
         <div class="chat-header">
-          <div class="chat-header-title" id="chat-room-title">${chatRooms.find(r=>r.id===currentRoom)?.label || 'Général'}</div>
-          <div class="chat-header-sub" id="chat-online">En ligne</div>
+          <div class="chat-header-title" id="chat-room-title">${chatRooms.find(r=>r.id===currentRoom)?.label || t('general')}</div>
+          <div class="chat-header-sub" id="chat-online">${t('enLigne')}</div>
         </div>
         <div class="chat-messages" id="chat-messages">
           <div style="text-align:center;color:var(--muted);font-size:11px;padding:20px">Chargement des messages...</div>
         </div>
         <div class="chat-input-wrap">
-          <input type="text" class="chat-input" id="chat-input" placeholder="Écrivez un message..." maxlength="500" onkeydown="if(event.key==='Enter')sendChatMessage()">
-          <button class="chat-send-btn" onclick="sendChatMessage()">Envoyer</button>
+          <input type="text" class="chat-input" id="chat-input" placeholder="${t('ecrireMessage')}" maxlength="500" onkeydown="if(event.key==='Enter')sendChatMessage()">
+          <button class="chat-send-btn" onclick="sendChatMessage()">${t('envoyer')}</button>
         </div>
       </div>
     </div>
@@ -2101,7 +3130,7 @@ function switchRoom(room) {
   const title = document.getElementById('chat-room-title');
   if(title) title.textContent = chatRooms.find(r=>r.id===room)?.label || room;
   const msgs = document.getElementById('chat-messages');
-  if(msgs) msgs.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:11px;padding:20px">Chargement...</div>';
+  if(msgs) msgs.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:11px;padding:20px"><svg class="vinyl-loader" width="60" height="60" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#111"/><circle cx="50" cy="50" r="42" fill="none" stroke="#1a1a1a" stroke-width="2"/><circle cx="50" cy="50" r="34" fill="none" stroke="#222" stroke-width="1.5"/><circle cx="50" cy="50" r="26" fill="none" stroke="#1a1a1a" stroke-width="1"/><circle cx="50" cy="50" r="18" fill="#c8a84b"/><circle cx="50" cy="50" r="13" fill="#b8943a"/><text x="50" y="48" text-anchor="middle" font-family="Georgia,serif" font-size="6" font-weight="700" fill="#1a0f00" letter-spacing="0.5">OSS</text><text x="50" y="55" text-anchor="middle" font-family="Georgia,serif" font-size="4.5" fill="#2a1a00">ATURE</text><circle cx="50" cy="50" r="2.5" fill="#111"/></svg><br><span class="vinyl-dot"></span><span class="vinyl-dot"></span><span class="vinyl-dot"></span></div>';
   loadChatMessages();
 }
 
@@ -2133,7 +3162,7 @@ function renderMessages(messages) {
   const container = document.getElementById('chat-messages');
   if(!container) return;
   if(!messages.length) {
-    container.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:11px;padding:40px">Soyez le premier à écrire dans ce salon !</div>';
+    container.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:11px;padding:40px">'+t('premierMessage')+'</div>';
     return;
   }
   container.innerHTML = messages.map(m => renderMessage(m)).join('');
@@ -2171,7 +3200,7 @@ function escapeHtml(text) {
 }
 
 async function sendChatMessage() {
-  if(!USER) { showNotif('Connexion requise', 'Connectez-vous pour envoyer des messages', 'info'); return; }
+  if(!USER) { showNotif(t('connexionRequise'), t('connectezVous'), 'info'); return; }
   const input = document.getElementById('chat-input');
   if(!input || !input.value.trim()) return;
   const message = input.value.trim();
@@ -2185,7 +3214,7 @@ async function sendChatMessage() {
     });
     await loadChatMessages();
   } catch(e) {
-    showNotif('Erreur', 'Message non envoyé', 'error');
+    showNotif('Erreur', t('messageNonEnvoye'), 'error');
   }
 }
 
@@ -2201,11 +3230,9 @@ async function showHeatmap() {
     <div style="padding:0">
       <div style="margin-bottom:20px">
         <div style="font-family:var(--serif);font-size:26px;font-weight:300;color:var(--gold3);font-style:italic;margin-bottom:4px">Vinyl Heatmap</div>
-        <div style="font-size:12px;color:var(--muted2)">Les disques qui bougent — données communautaires en temps réel</div>
+        <div style="font-size:12px;color:var(--muted2)">${LANG==='en'?'Records on the move — community data in real time':'Les disques qui bougent — données communautaires en temps réel'}</div>
       </div>
-      <div class="loading" style="padding:40px 0">
-        Analyse des tendances<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
-      </div>
+      <div class="loading" style="padding:40px 0"><svg class="vinyl-loader" width="60" height="60" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#111"/><circle cx="50" cy="50" r="42" fill="none" stroke="#1a1a1a" stroke-width="2"/><circle cx="50" cy="50" r="34" fill="none" stroke="#222" stroke-width="1.5"/><circle cx="50" cy="50" r="26" fill="none" stroke="#1a1a1a" stroke-width="1"/><circle cx="50" cy="50" r="18" fill="#c8a84b"/><circle cx="50" cy="50" r="13" fill="#b8943a"/><text x="50" y="48" text-anchor="middle" font-family="Georgia,serif" font-size="6" font-weight="700" fill="#1a0f00" letter-spacing="0.5">OSS</text><text x="50" y="55" text-anchor="middle" font-family="Georgia,serif" font-size="4.5" fill="#2a1a00">ATURE</text><circle cx="50" cy="50" r="2.5" fill="#111"/></svg><br><span class="vinyl-dot"></span><span class="vinyl-dot"></span><span class="vinyl-dot"></span></div>
     </div>
   `;
 
@@ -2241,7 +3268,7 @@ async function showHeatmap() {
         </div>
         <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:20px">
           <div style="font-family:var(--serif);font-size:26px;font-weight:300;color:var(--gold3);font-style:italic">🔥 Vinyl Heatmap</div>
-          <div style="font-size:11px;color:var(--muted)">Données de votre collection · ${new Date().toLocaleDateString('fr')}</div>
+          <div style="font-size:11px;color:var(--muted)">${LANG==='en'?'Your collection data · ':'Données de votre collection · '}${new Date().toLocaleDateString(LANG==='en'?'en-GB':'fr')}</div>
         </div>
 
         <div class="hm-stats">
@@ -2261,7 +3288,7 @@ async function showHeatmap() {
 
         ${topGainers.length ? `
         <div class="hm-section">
-          <div class="hm-section-title">🚀 Top Gainers — Disques en hausse</div>
+          <div class="hm-section-title">${t('topGainers')}</div>
           <div class="hm-grid">
             ${topGainers.map(({r, change, price}) => {
               const img = r.basic_information?.cover_image||'';
@@ -2282,7 +3309,7 @@ async function showHeatmap() {
 
         ${topLosers.length ? `
         <div class="hm-section">
-          <div class="hm-section-title">📉 En baisse — Opportunités d'achat ?</div>
+          <div class="hm-section-title">${t('enBaisse')}</div>
           <div class="hm-grid">
             ${topLosers.map(({r, change, price}) => {
               const img = r.basic_information?.cover_image||'';
@@ -2302,7 +3329,7 @@ async function showHeatmap() {
         </div>` : ''}
 
         <div class="hm-section">
-          <div class="hm-section-title">💎 Potentiel spéculatif — Écart prix bas / meilleure vente</div>
+          <div class="hm-section-title">${t('potentielSpec2')}</div>
           <div class="hm-grid">
             ${releases
               .filter(r => r._highestPrice && r._price && r._highestPrice > r._price * 2)
@@ -2327,7 +3354,7 @@ async function showHeatmap() {
           </div>
         </div>
 
-        <div class="footnote">Données basées sur votre collection · Historique Supabase · Plus il y a d'utilisateurs, plus c'est précis</div>
+        <div class="footnote">${LANG==='en'?'Data based on your collection · Supabase history · More users = more accurate':'Données basées sur votre collection · Historique Supabase · Plus il y a d\'utilisateurs, plus c\'est précis'}</div>
       </div>
     `;
   } catch(e) {
@@ -2405,7 +3432,7 @@ async function savePurchasePrice(releaseId) {
     if(section) section.innerHTML = `
       <div style="display:flex;justify-content:space-between;align-items:center">
         <div>
-          <div style="font-size:10px;color:var(--muted2)">Acheté : <span style="color:var(--text)">${price.toFixed(2)} €</span></div>
+          <div style="font-size:10px;color:var(--muted2)">'+( LANG==='en'?'Purchased: ':'Acheté : ')+'<span style="color:var(--text)">${price.toFixed(2)} €</span></div>
           <div style="font-size:10px;color:var(--muted2)">Valeur actuelle : <span style="color:var(--gold2)">${currentPrice.toFixed(2)} €</span></div>
         </div>
         <div style="text-align:right">
@@ -2417,7 +3444,7 @@ async function savePurchasePrice(releaseId) {
     `;
 
     updatePortfolioPnL();
-    showNotif('P&L enregistré', `${r?.basic_information?.title || ''} — acheté ${price}€`, 'success');
+    showNotif(t('pnlEnregistre'), `${r?.basic_information?.title || ''} — acheté ${price}€`, 'success');
   } catch(e) {
     showNotif('Erreur', e.message, 'error');
   }
@@ -2447,7 +3474,7 @@ async function loadDetailPnL(releaseId) {
   if(section) section.innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:center">
       <div>
-        <div style="font-size:10px;color:var(--muted2)">Acheté : <span style="color:var(--text)">${price.toFixed(2)} €</span></div>
+        <div style="font-size:10px;color:var(--muted2)">'+( LANG==='en'?'Purchased: ':'Acheté : ')+'<span style="color:var(--text)">${price.toFixed(2)} €</span></div>
         <div style="font-size:10px;color:var(--muted2)">Valeur actuelle : <span style="color:var(--gold2)">${currentPrice.toFixed(2)} €</span></div>
       </div>
       <div style="text-align:right">
@@ -2502,7 +3529,7 @@ async function saveAlert() {
         email
       })
     });
-    showNotif('✓ Alerte créée', 'Vous serez notifié par email quand la condition est remplie.', 'success');
+    showNotif(t('alerteCreee'), t('notifieEmail'), 'success');
     closeAlertModal();
   } catch(e) {
     alert('Erreur: ' + e.message);
@@ -2531,7 +3558,7 @@ async function loadExistingAlerts(releaseId) {
 
 async function deleteAlert(id) {
   await fetch(`/api/alerts?id=${id}`, { method: 'DELETE' });
-  showNotif('Alerte supprimée', '', 'info');
+  showNotif(t('alerteSupprimee'), '', 'info');
   closeAlertModal();
 }
 
@@ -2585,7 +3612,7 @@ function setScanMode(mode) {
     macaronBtn.style.borderColor = 'var(--border2)';
     macaronBtn.style.background = 'transparent';
     macaronBtn.style.color = 'var(--muted2)';
-    if(hint) hint.textContent = 'Mode pochette — identification de l album';
+    if(hint) hint.textContent = t('modePochette');
     if(icon) icon.textContent = '🎵';
   } else {
     macaronBtn.style.borderColor = 'var(--gold)';
@@ -2594,7 +3621,7 @@ function setScanMode(mode) {
     coverBtn.style.borderColor = 'var(--border2)';
     coverBtn.style.background = 'transparent';
     coverBtn.style.color = 'var(--muted2)';
-    if(hint) hint.textContent = 'Mode macaron — identification du pressage exact';
+    if(hint) hint.textContent = t('modeMacaron');
     if(icon) icon.textContent = '⚫';
   }
 }
@@ -2723,7 +3750,7 @@ async function autoSearchPressing(data) {
     const results = searchRes?.results || [];
 
     if(results.length === 0) {
-      document.getElementById('scan-discogs-price').textContent = 'Pressage non trouvé sur Discogs';
+      document.getElementById('scan-discogs-price').textContent = t('pressageNonTrouve');
       return;
     }
 
@@ -2844,20 +3871,46 @@ async function handleScanFile(input) {
 }
 
 async function deleteFromCollection(releaseId, title) {
-  if(!confirm(`Supprimer "${title}" de ta collection Discogs ?\n\nCette action est irréversible.`)) return;
+  if(!confirm(`${LANG==='en'?'Delete "'+title+'" from your Discogs collection?\n\nThis action is irreversible.':'Supprimer "'+title+'" de ta collection Discogs ?\n\nCette action est irréversible.'}`)) return;
   try {
     // Récupérer l'instance_id depuis la collection (nécessaire pour supprimer)
     const r = releases.find(x => x.id === releaseId);
-    const instanceId = r?.instance_id;
+    // instance_id peut être à la racine ou dans basic_information
+    const instanceId = r?.instance_id || r?.id_instance;
     if(!instanceId) {
-      alert('Impossible de trouver l\'identifiant de ce vinyle dans ta collection.');
+      // Essayer de le fetcher depuis Discogs directement
+      try {
+        const collData = await apiFetch(`${DISCOGS}/users/${USER}/collection/folders/0/releases?per_page=100&page=1`);
+        const found = (collData.releases||[]).find(x => x.basic_information?.id === releaseId || x.id === releaseId);
+        if(found?.instance_id) {
+          // Supprimer avec l'instance_id trouvé
+          const res2 = await fetch('/api/discogs', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ path: `users/${USER}/collection/folders/0/releases/${releaseId}/instances/${found.instance_id}`, method: 'DELETE' })
+          });
+          if(res2.ok || res2.status === 204) {
+            releases = releases.filter(x => x.id !== releaseId);
+            showNotif('Collection', `"${title}" ` + t('supprimeOk'), 'success');
+            showPortfolio();
+          }
+        } else {
+          alert('Instance ID introuvable. Supprime manuellement sur Discogs.');
+        }
+      } catch(e2) {
+        alert('Erreur: ' + e2.message);
+      }
       return;
     }
-    const res = await fetch(`/api/discogs?path=${encodeURIComponent('users/'+USER+'/collection/folders/0/releases/'+releaseId+'/instances/'+instanceId)}&method=DELETE`);
+    const res = await fetch('/api/discogs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ path: `users/${USER}/collection/folders/0/releases/${releaseId}/instances/${instanceId}`, method: 'DELETE' })
+    });
     if(res.ok || res.status === 204) {
       // Retirer de releases localement
       releases = releases.filter(x => x.id !== releaseId);
-      showNotif('Collection', `"${title}" supprimé de ta collection ✓`, 'success');
+      showNotif('Collection', `"${title}" ` + t('supprimeCollection'), 'success');
       showPortfolio();
     } else {
       const err = await res.json().catch(()=>({}));
@@ -2896,7 +3949,7 @@ async function addToDiscogsCollection(releaseId, title) {
         })
       }).catch(()=>{});
       if(el) el.innerHTML = `<div style="color:var(--green);font-size:12px;padding:8px 0">✓ "${title}" ajouté à ta collection Discogs !</div>`;
-      showNotif('✓ Ajouté', title + ' ajouté à ta collection', 'success');
+      showNotif('✓', title + ' ' + t('ajouteCollection'), 'success');
       // Recharger la collection après 2s
       setTimeout(() => location.reload(), 2000);
     } else {
@@ -2909,7 +3962,7 @@ async function addToDiscogsCollection(releaseId, title) {
 
 async function addScanToWantlist() {
   if (!scannedAlbum) return;
-  if (!USER) { showNotif('Connexion requise', 'Connectez-vous pour gérer votre Wantlist', 'info'); return; }
+  if (!USER) { showNotif(t('connexionRequise'), t('connectezVous'), 'info'); return; }
 
   const btn = document.getElementById('scan-want-btn');
   if(btn) { btn.textContent = '⏳ Recherche...'; btn.disabled = true; }
@@ -2927,7 +3980,7 @@ async function addScanToWantlist() {
     }
 
     if (!releaseId) {
-      showNotif('Introuvable', 'Impossible de trouver ce pressage sur Discogs', 'error');
+      showNotif(t('pressageNonTrouve'), '', 'error');
       if(btn) { btn.textContent = '❤️ Ajouter à la Wantlist'; btn.disabled = false; }
       return;
     }
@@ -2941,7 +3994,7 @@ async function addScanToWantlist() {
 
     if (result.ok) {
       if(btn) { btn.textContent = '✓ Ajouté !'; btn.style.background = 'linear-gradient(135deg,#5dc99a 0%,var(--green) 100%)'; }
-      showNotif('Wantlist', `${scannedAlbum.title} ajouté à ta Wantlist ✓`, 'success');
+      showNotif('Wantlist', `${scannedAlbum.title} ` + t('ajouteWantlistOk'), 'success');
       setTimeout(() => {
         if(btn) { btn.textContent = '❤️ Dans la Wantlist'; btn.disabled = true; }
       }, 2000);
@@ -3024,7 +4077,7 @@ async function linkToCollection() {
             <div style="font-size:10px;color:var(--muted2);margin:8px 0 6px">Sélectionne le bon pressage :</div>
             ${scored.map(r => `
               <div style="display:flex;gap:10px;align-items:center;padding:8px;border:0.5px solid var(--border2);border-radius:3px;margin-bottom:6px;cursor:pointer;background:var(--surface2)" 
-                onclick="addToDiscogsCollection(${r.id}, '${(r.title||'').replace(/'/g,"\'")}')">
+                onclick="addToDiscogsCollection(${r.id}, this.dataset.title)" data-title="${(r.title||'').replace(/"/g,'&quot;')}">
                 ${r.cover_image && !r.cover_image.includes('spacer') 
                   ? `<img src="${r.cover_image}" style="width:36px;height:36px;object-fit:cover;border-radius:2px;flex-shrink:0">`
                   : '<div style="width:36px;height:36px;background:var(--surface3);border-radius:2px;flex-shrink:0;display:flex;align-items:center;justify-content:center">🎵</div>'}
@@ -3043,7 +4096,7 @@ async function linkToCollection() {
         <div style="background:rgba(184,150,46,.08);border:0.5px solid var(--gold);border-radius:3px;padding:12px;margin-top:8px">
           <div style="color:var(--gold2);font-size:12px;font-weight:500;margin-bottom:6px">Ce disque n'est pas encore dans ta collection</div>
           <div style="color:var(--muted2);font-size:11px;margin-bottom:10px">${scannedAlbum.title} · ${scannedAlbum.artist||''}</div>
-          <button onclick="addToDiscogsCollection(${releaseId}, '${(scannedAlbum.title||'').replace(/'/g,"\'")}')" 
+          <button onclick="addToDiscogsCollection(${releaseId}, this.dataset.title)" data-title="${(scannedAlbum.title||'').replace(/"/g,'&quot;')}" 
             style="font-size:11px;color:#000;background:linear-gradient(135deg,var(--gold) 0%,var(--gold3) 100%);border:none;padding:8px 16px;border-radius:2px;font-family:var(--mono);cursor:pointer;width:100%">
             📀 Ajouter à ma collection Discogs
           </button>
@@ -3054,7 +4107,7 @@ async function linkToCollection() {
     el.innerHTML = `
       <div style="font-size:10px;color:var(--muted2);margin:8px 0 6px">Sélectionnez le disque correspondant dans votre collection :</div>
       ${collectionMatches.map(r => `
-        <div style="display:flex;gap:10px;align-items:center;padding:8px;border:0.5px solid var(--border2);border-radius:3px;margin-bottom:6px;cursor:pointer;background:var(--surface2)" onclick="confirmLink(${r.id}, '${r.basic_information.title.replace(/'/g,"\'")}')">
+        <div style="display:flex;gap:10px;align-items:center;padding:8px;border:0.5px solid var(--border2);border-radius:3px;margin-bottom:6px;cursor:pointer;background:var(--surface2)" onclick="confirmLink(${r.id}, this.dataset.title)" data-title="${r.basic_information.title.replace(/"/g,'&quot;')}">
           ${r.basic_information.cover_image && !r.basic_information.cover_image.includes('spacer') 
             ? `<img src="${r.basic_information.cover_image}" style="width:36px;height:36px;object-fit:cover;border-radius:2px;flex-shrink:0">`
             : '<div style="width:36px;height:36px;background:var(--surface3);border-radius:2px;flex-shrink:0;display:flex;align-items:center;justify-content:center">🎵</div>'}
@@ -3099,37 +4152,50 @@ async function confirmLink(releaseId, title) {
         ${scannedAlbum.pressing_type ? `<div style="color:var(--muted);font-size:10px;margin-top:4px">${scannedAlbum.pressing_type} · ${scannedAlbum.label || ''} · ${scannedAlbum.matrix_code ? 'Matrice: '+scannedAlbum.matrix_code : ''}</div>` : ''}
       </div>
     `;
-    showNotif('✓ Pressage lié', title + ' — pressage identifié dans votre collection', 'success');
+    showNotif(t('pressageLie'), title, 'success');
 
-    // Mettre à jour le prix avec le pressage exact scanné
+    // Mettre à jour le release_id ET le prix avec le pressage exact scanné
     if(scannedAlbum.release_id) {
       try {
-        const stats = await fetchMarketStats(scannedAlbum.release_id);
+        const exactId = scannedAlbum.release_id;
+        const stats = await fetchMarketStats(exactId);
         const newPrice = stats?.lowest_price?.value;
-        if(newPrice) {
-          // Mettre à jour dans releases
-          const r = releases.find(x => x.id === releaseId);
-          if(r) {
+        // Trouver le disque dans la collection (par l'ancien ID ou par titre/artiste)
+        const r = releases.find(x => x.id === releaseId) || 
+                  releases.find(x => x.basic_information?.title?.toLowerCase() === (scannedAlbum.title||'').toLowerCase());
+        if(r) {
+          // Remplacer l'ID générique par l'ID du pressage exact
+          const oldId = r.id;
+          r.id = exactId;
+          r._scannedPressing = true;
+          r._pressureType = scannedAlbum.pressing_type;
+          r._matrixCode = scannedAlbum.matrix_code;
+          r._pressingCountry = scannedAlbum.country;
+          // Mettre à jour le prix
+          if(newPrice) {
             r._price = newPrice;
             r._lowestPrice = newPrice;
             // Mettre à jour la carte visuellement
-            const card = document.querySelector(`[data-id="${releaseId}"] .card-price`);
-            if(card) card.textContent = newPrice.toFixed(2) + ' €';
+            const card = document.querySelector(`[data-id="${oldId}"] .card-price`);
+            if(card) {
+              card.textContent = newPrice.toFixed(2) + ' €';
+              card.closest('[data-id]')?.setAttribute('data-id', exactId);
+            }
           }
-          // Sauvegarder en Supabase
+          // Sauvegarder en Supabase le lien pressage exact
           sbFetch('/price_history', {
             method: 'POST',
             prefer: 'return=minimal',
             body: JSON.stringify([{
-              release_id: scannedAlbum.release_id,
+              release_id: exactId,
               discogs_user: USER,
-              price: newPrice,
-              lowest_price: newPrice,
+              price: newPrice || null,
+              lowest_price: newPrice || null,
               recorded_at: new Date().toISOString()
             }])
           }).catch(()=>{});
         }
-      } catch(e2) {}
+      } catch(e2) { console.log('Erreur mise à jour pressage:', e2); }
     }
   } catch(e) {
     // Table may not exist yet — just show success message
@@ -3154,7 +4220,7 @@ async function searchScannedAlbum() {
     const results = data.results || [];
 
     if (!results.length) {
-      el.innerHTML = '<div style="color:var(--muted);font-size:11px;padding:8px 0">Aucun résultat trouvé.</div>';
+      el.innerHTML = '<div style="color:var(--muted);font-size:11px;padding:8px 0">'+t('aucunResultatTrouve')+'</div>';
       return;
     }
 
@@ -3327,7 +4393,7 @@ function addLogoutBtn() {
     const btn = document.createElement('a');
     btn.href = '/api/auth/logout';
     btn.style.cssText = 'font-size:10px;color:var(--muted);text-decoration:none;font-family:var(--mono);padding:3px 8px;border:0.5px solid var(--border2);border-radius:2px';
-    btn.textContent = 'Déconnexion';
+    btn.textContent = t('deconnexion');
     topbar.appendChild(btn);
   }
 }
@@ -3360,7 +4426,7 @@ async function init(){
     return;
   }
   try {
-    $('portfolio-view').innerHTML=`<div class="loading"><div class="loading-title">Vinyl Portfolio</div>Chargement de la collection<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span><div class="progress-bar"><div class="progress-fill" id="prog" style="width:2%"></div></div><div class="progress-text" id="prog-text">Connexion à Discogs...</div></div>`;
+    $('portfolio-view').innerHTML=`<div class="loading"><div class="loading-title">Vinyl Portfolio</div><svg class="vinyl-loader" width="60" height="60" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#111"/><circle cx="50" cy="50" r="42" fill="none" stroke="#1a1a1a" stroke-width="2"/><circle cx="50" cy="50" r="34" fill="none" stroke="#222" stroke-width="1.5"/><circle cx="50" cy="50" r="26" fill="none" stroke="#1a1a1a" stroke-width="1"/><circle cx="50" cy="50" r="18" fill="#c8a84b"/><circle cx="50" cy="50" r="13" fill="#b8943a"/><text x="50" y="48" text-anchor="middle" font-family="Georgia,serif" font-size="6" font-weight="700" fill="#1a0f00" letter-spacing="0.5">OSS</text><text x="50" y="55" text-anchor="middle" font-family="Georgia,serif" font-size="4.5" fill="#2a1a00">ATURE</text><circle cx="50" cy="50" r="2.5" fill="#111"/></svg><br><span class="vinyl-dot"></span><span class="vinyl-dot"></span><span class="vinyl-dot"></span><br><div class="progress-bar"><div class="progress-fill" id="prog" style="width:2%"></div></div><div class="progress-text" id="prog-text">Connexion à Discogs...</div></div>`;
 
     // 1. Load collection
     const raw = await fetchAllPages();
@@ -3378,10 +4444,16 @@ async function init(){
       // Lire le cache des 7 derniers jours (pas juste aujourd'hui)
       const sevenDaysAgo = new Date(); sevenDaysAgo.setDate(sevenDaysAgo.getDate()-7);
       const sinceDate = sevenDaysAgo.toISOString().split('T')[0];
-      const cached = await sbFetch(`/price_history?discogs_user=eq.${USER}&recorded_at=gte.${sinceDate}T00:00:00Z&select=release_id,price,lowest_price,median_price,num_for_sale,recorded_at&order=recorded_at.desc&limit=1000`);
+      // Utiliser price_history_daily pour avoir 1 prix récent par disque
+      const cached = await sbFetch(`/price_history_daily?discogs_user=eq.${USER}&recorded_at=gte.${sinceDate}T00:00:00Z&select=release_id,price,lowest_price,recorded_at&order=recorded_at.desc&limit=1000`);
       if(cached && cached.length > 0) {
-        cached.forEach(r => { cachedToday[r.release_id] = r; });
-        console.log(`Cache today: ${cached.length} prices`);
+        // Garder seulement le prix le plus récent par disque
+        cached.forEach(r => { 
+          if(!cachedToday[r.release_id] || r.recorded_at > cachedToday[r.release_id].recorded_at) {
+            cachedToday[r.release_id] = r;
+          }
+        });
+        console.log(`Cache today: ${Object.keys(cachedToday).length} prices`);
       }
     } catch(e) { console.log('Cache error:', e); }
 
@@ -3439,6 +4511,15 @@ async function init(){
     // Afficher le bouton reset cache quand connecté
     const resetBtn = document.getElementById('reset-cache-btn');
     if(resetBtn) resetBtn.style.display = (USER === 'estebanveis') ? 'inline-block' : 'none';
+    showVinylPlayer();
+    // Afficher le bouton langue
+    const langBtn = document.getElementById('lang-btn');
+    if(langBtn) {
+      langBtn.style.display = 'inline-block';
+      langBtn.textContent = LANG === 'fr' ? 'EN' : 'FR';
+    }
+    // Charger et afficher le statut de confidentialité
+    loadPrivacyStatus();
       if(dbEl){dbEl.textContent='DB ●';dbEl.className='t-db ok';}
     } catch(e) {
       console.error('Supabase save error:', e);
@@ -3446,6 +4527,9 @@ async function init(){
     // Afficher le bouton reset cache quand connecté
     const resetBtn = document.getElementById('reset-cache-btn');
     if(resetBtn) resetBtn.style.display = (USER === 'estebanveis') ? 'inline-block' : 'none';
+    showVinylPlayer();
+    // Charger et afficher le statut de confidentialité
+    loadPrivacyStatus();
       if(dbEl){dbEl.textContent='DB ~';dbEl.className='t-db ok';}
     }
 
@@ -3454,8 +4538,10 @@ async function init(){
     if(prog) prog.style.width='85%';
     try {
       historyMap = await loadHistory();
-      const realCount = Object.keys(historyMap).filter(id=>historyMap[id]?.length>=2).length;
-      console.log(`Loaded history: ${realCount} releases with real data`);
+      const allKeys = Object.keys(historyMap);
+      const realCount = allKeys.filter(id=>historyMap[id]?.length>=2).length;
+      console.log(`Loaded history: ${realCount} releases with real data (total keys: ${allKeys.length})`);
+      if(allKeys.length > 0) console.log('Sample key:', allKeys[0], 'type:', typeof allKeys[0], 'pts:', historyMap[allKeys[0]]?.length);
     } catch(e) {
       console.error('Supabase history error:', e);
       historyMap = {};
@@ -3466,10 +4552,17 @@ async function init(){
       r._history = buildRealHistory(r.id, r._price);
     }
 
+    // Recharger historyMap après sauvegarde pour inclure les nouveaux points d'aujourd'hui
+    try {
+      historyMap = await loadHistory();
+      for(const r of raw) { r._history = buildRealHistory(r.id, r._price); }
+    } catch(e) {}
+
     if(prog) prog.style.width='100%';
     releases = raw;
     filtered = [...releases];
     renderPortfolio();
+    setTimeout(initParallax, 200);
 
   } catch(e) {
     $('portfolio-view').innerHTML=`<div class="err">Erreur<div class="err-detail">${e.message}<br><br>Vérifiez votre connexion et que votre collection Discogs est publique.</div></div>`;
