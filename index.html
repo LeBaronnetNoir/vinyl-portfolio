@@ -729,7 +729,7 @@ async function apiFetch(url) {
   if (url.startsWith(discogsBase)) {
     const path = url.replace(discogsBase, '');
     const userToken = TOKEN || '';
-    apiUrl = `/api/discogs?path=${encodeURIComponent(path)}&token=${encodeURIComponent(userToken)}`;
+    apiUrl = `/api/discogs?path=${path}&token=${encodeURIComponent(userToken)}`;
   }
   const r = await fetch(apiUrl);
   if (!r.ok) throw new Error(`Discogs ${r.status}`);
