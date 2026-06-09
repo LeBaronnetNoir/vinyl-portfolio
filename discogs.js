@@ -14,7 +14,7 @@ export default async function handler(req, res) {
   } else {
     path = req.query.path;
     discogsMethod = req.query.method || 'GET';
-    userToken = req.query.token || null;
+    userToken = req.query._token || req.query.token || null;
   }
 
   const token = (userToken && userToken !== serverToken) ? userToken : serverToken;
