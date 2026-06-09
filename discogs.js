@@ -17,7 +17,6 @@ export default async function handler(req, res) {
     userToken = req.query.token || null;
   }
 
-  // Utiliser le token utilisateur si fourni, sinon le token serveur
   const token = (userToken && userToken !== serverToken) ? userToken : serverToken;
 
   if (!path) return res.status(400).json({ error: 'Missing path' });
