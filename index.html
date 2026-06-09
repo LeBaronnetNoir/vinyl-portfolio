@@ -613,9 +613,12 @@ const DISCOGS  = 'https://api.discogs.com';
     return v ? decodeURIComponent(v.pop()) : null;
   }
   const urlParams = new URLSearchParams(window.location.search);
-  const USER = urlParams.get('user') || getCookie('ossature_user') || 'estebanveis';
-  const TOKEN = urlParams.get('token') || getCookie('ossature_token') || 'mxKNZMfowJDIOUQxGGXTJIVSobInATYAUZUXAMWV';
+  let USER = urlParams.get('user') || getCookie('ossature_user') || null;
+  let TOKEN = urlParams.get('token') || getCookie('ossature_token') || 'mxKNZMfowJDIOUQxGGXTJIVSobInATYAUZUXAMWV';
   if(urlParams.get('user')) window.history.replaceState({}, '', '/');
+  // Sera mis à jour par init() si session restaurée depuis Supabase
+  Object.defineProperty(window, 'USER', { get: () => window._SESSION_USER || USER, configurable: true });
+  Object.defineProperty(window, 'TOKEN', { get: () => window._SESSION_TOKEN || TOKEN, configurable: true });
 const SB_URL   = 'https://vtfuzcxkdrnkbonrlxbk.supabase.co';
 const SB_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ0ZnV6Y3hrZHJua2JvbnJseGJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3Njk1ODgsImV4cCI6MjA5NTM0NTU4OH0.tKm-FS6nL_S2GjCOvBsV3ylUjt6O50KvCtdWJe6XAsc';
 const SB_REST  = `${SB_URL}/rest/v1`;
@@ -4438,12 +4441,45 @@ document.addEventListener('touchend', (e) => {
 
 // ── INIT ──
 async function init(){
-  // Show login if no user cookie (not the fallback estebanveis)
-  const hasRealSession = getCookie('ossature_user') || new URLSearchParams(window.location.search).get('user');
-  if(!hasRealSession) {
+  // 1. Vérifier le cookie d'abord
+  let sessionUser = getCookie('ossature_user') || new URLSearchParams(window.location.search).get('user');
+  let sessionToken = getCookie('ossature_token') || new URLSearchParams(window.location.search).get('token');
+
+  // 2. Si pas de cookie → chercher dans Supabase via localStorage (username sauvegardé)
+  if(!sessionUser) {
+    const savedUser = localStorage.getItem('ossature_last_user');
+    if(savedUser) {
+      try {
+        const r = await fetch(`${SB_REST}/users?discogs_username=eq.${savedUser}&select=discogs_username,discogs_token`, {
+          headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
+        });
+        const data = await r.json();
+        if(data?.[0]?.discogs_token) {
+          sessionUser = data[0].discogs_username;
+          sessionToken = data[0].discogs_token;
+          // Recréer le cookie pour 1 an
+          const maxAge = 31536000;
+          document.cookie = `ossature_user=${sessionUser}; Path=/; SameSite=Lax; Max-Age=${maxAge}`;
+          document.cookie = `ossature_token=${sessionToken}; Path=/; SameSite=Lax; Max-Age=${maxAge}`;
+          console.log('Session restaurée depuis Supabase pour', sessionUser);
+        }
+      } catch(e) { console.log('Supabase session restore failed:', e); }
+    }
+  }
+
+  // 3. Toujours pas de session → page de login
+  if(!sessionUser) {
     showLoginScreen();
     return;
   }
+
+  // 4. Sauvegarder le username dans localStorage pour la prochaine fois
+  localStorage.setItem('ossature_last_user', sessionUser);
+
+  // Mettre à jour USER et TOKEN globalement
+  window._SESSION_USER = sessionUser;
+  window._SESSION_TOKEN = sessionToken;
+
   try {
     $('portfolio-view').innerHTML=`<div class="loading"><div class="loading-title">Vinyl Portfolio</div><svg class="vinyl-loader" width="60" height="60" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#111"/><circle cx="50" cy="50" r="42" fill="none" stroke="#1a1a1a" stroke-width="2"/><circle cx="50" cy="50" r="34" fill="none" stroke="#222" stroke-width="1.5"/><circle cx="50" cy="50" r="26" fill="none" stroke="#1a1a1a" stroke-width="1"/><circle cx="50" cy="50" r="18" fill="#c8a84b"/><circle cx="50" cy="50" r="13" fill="#b8943a"/><text x="50" y="48" text-anchor="middle" font-family="Georgia,serif" font-size="6" font-weight="700" fill="#1a0f00" letter-spacing="0.5">OSS</text><text x="50" y="55" text-anchor="middle" font-family="Georgia,serif" font-size="4.5" fill="#2a1a00">ATURE</text><circle cx="50" cy="50" r="2.5" fill="#111"/></svg><br><span class="vinyl-dot"></span><span class="vinyl-dot"></span><span class="vinyl-dot"></span><br><div class="progress-bar"><div class="progress-fill" id="prog" style="width:2%"></div></div><div class="progress-text" id="prog-text">Connexion à Discogs...</div></div>`;
 
