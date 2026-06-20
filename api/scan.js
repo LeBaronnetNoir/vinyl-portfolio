@@ -97,7 +97,33 @@ Respond ONLY in valid JSON without markdown:
         // Silently fail — release_id stays null
       }
     }
-
+// Sauvegarder dans Supabase
+    try {
+      const SUPABASE_URL = process.env.SUPABASE_URL;
+      const SUPABASE_KEY = process.env.SUPABASE_KEY;
+      await fetch(`${SUPABASE_URL}/rest/v1/pressing_scans`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({
+          artist: parsed.artist,
+          title: parsed.title,
+          year: parsed.year,
+          label: parsed.label || null,
+          catalog_number: parsed.catalog_number || null,
+          release_id: parsed.release_id || null,
+          confidence: parsed.confidence || null,
+          mode: isMacaron ? 'macaron' : 'cover',
+          scanned_at: new Date().toISOString()
+        })
+      });
+    } catch(saveErr) {
+      // On continue même si la sauvegarde échoue
+    }
     res.status(200).json({ ...parsed, mode: isMacaron ? 'macaron' : 'cover' });
   } catch(e) {
     res.status(500).json({ error: e.message });
