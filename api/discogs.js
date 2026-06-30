@@ -11,7 +11,7 @@ if (req.query.action === 'stats') {
         headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
       });
       const rows = await r.json();
-      const total_value = rows.reduce((s, x) => s + (x.median_price || 0), 0);
+      const total_value = rows.reduce((s, x) => s + (x.median_price || x.lowest_price || 0), 0);
       return res.status(200).json({ total_value, count: rows.length });
     } catch(e) {
       return res.status(500).json({ error: e.message });
