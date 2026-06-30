@@ -4967,6 +4967,7 @@ async function init(){
 
     if(prog) prog.style.width='100%';
     releases = raw;
+    saveCollectionToSupabase(raw);
     filtered = [...releases];
     renderPortfolio();
     setTimeout(initParallax, 200);
