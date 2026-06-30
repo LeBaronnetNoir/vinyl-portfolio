@@ -7,7 +7,7 @@ if (req.query.action === 'stats') {
     const SUPABASE_URL = process.env.SUPABASE_URL;
     const SUPABASE_KEY = process.env.SUPABASE_KEY;
     try {
-      const r = await fetch(`${SUPABASE_URL}/rest/v1/releases?select=median_price`, {
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/releases?select=median_price,lowest_price`, {
         headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
       });
       const rows = await r.json();
