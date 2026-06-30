@@ -752,7 +752,37 @@ async function sbFetch(path, opts={}) {
   }
   return r.json();
 }
-
+async function saveCollectionToSupabase(raw) {
+  const rows = raw.map(r => ({
+    id: r.id,
+    title: r.basic_information?.title || null,
+    artist: r.basic_information?.artists?.[0]?.name || null,
+    year: r.basic_information?.year || null,
+    label: r.basic_information?.labels?.[0]?.name || null,
+    catalog_number: r.basic_information?.labels?.[0]?.catno || null,
+    country: r.basic_information?.country || null,
+    genre: (r.basic_information?.genres || []).join(', ') || null,
+    style: (r.basic_information?.styles || []).join(', ') || null,
+    format: r.basic_information?.formats?.[0]?.name || null,
+    cover_url: r.basic_information?.cover_image || null,
+    discogs_url: `https://www.discogs.com/release/${r.id}`,
+    discogs_user: USER,
+    median_price: r._medianPrice || null,
+    lowest_price: r._lowestPrice || null,
+    updated_at: new Date().toISOString()
+  }));
+  for (let i = 0; i < rows.length; i += 50) {
+    const chunk = rows.slice(i, i + 50);
+    try {
+      await sbFetch('/releases', {
+        method: 'POST',
+        headers: { 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+        body: JSON.stringify(chunk)
+      });
+    } catch(e) { console.error('Save releases error:', e); }
+  }
+  console.log(`✅ ${rows.length} releases sauvegardés dans Supabase`);
+}
 async function saveCurrentPrices(releases) {
   // Insert today's prices for all releases — one row per release
   const rows = releases.map(r => ({
